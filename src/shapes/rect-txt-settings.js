@@ -12,6 +12,40 @@ import { ShapeSmbl } from './shape-smbl.js';
 export const rectTxtSettingsPnlCreate = (canvas, shapeElement, bottomX, bottomY) =>
 	modalCreate(bottomX, bottomY, new RectTxtSettings(canvas, shapeElement));
 
+/**
+ * 将组件层级上移一层
+ * @param {import('../infrastructure/canvas-smbl').CanvasElement} canvas
+ * @param {import('./shape-smbl').ShapeElement} shapeElement
+ */
+function moveLayerUp(canvas, shapeElement) {
+	const nextSibling = shapeElement.nextElementSibling;
+	if (nextSibling) {
+		// 在SVG中，后面的元素显示在前面，所以要上移需要往后移动
+		canvas.insertBefore(nextSibling, shapeElement);
+		// 触发历史记录保存
+		setTimeout(() => {
+			document.dispatchEvent(new CustomEvent('diagramchange'));
+		}, 100);
+	}
+}
+
+/**
+ * 将组件层级下移一层
+ * @param {import('../infrastructure/canvas-smbl').CanvasElement} canvas
+ * @param {import('./shape-smbl').ShapeElement} shapeElement
+ */
+function moveLayerDown(canvas, shapeElement) {
+	const previousSibling = shapeElement.previousElementSibling;
+	if (previousSibling) {
+		// 在SVG中，前面的元素显示在后面，所以要下移需要往前移动
+		canvas.insertBefore(shapeElement, previousSibling);
+		// 触发历史记录保存
+		setTimeout(() => {
+			document.dispatchEvent(new CustomEvent('diagramchange'));
+		}, 100);
+	}
+}
+
 class RectTxtSettings extends HTMLElement {
 	/**
  	 * @param {import('../infrastructure/canvas-smbl.js').CanvasElement} canvas
@@ -57,12 +91,14 @@ class RectTxtSettings extends HTMLElement {
 		const editEl = shadow.getElementById('edit');
 		classAdd(editEl, `ta-${rectData.a}`);
 
-		// colors, del
+		// colors, del, layer controls
 		listen(editEl, 'cmd', /** @param {CustomEvent<{cmd:string, arg:string}>} evt */ evt => {
 			switch (evt.detail.cmd) {
 				case 'style': classSingleAdd(this._rectElement, rectData, 'cl-', evt.detail.arg); break;
 				case 'del': this._rectElement[ShapeSmbl].del(); break;
 				case 'copy': copyAndPast(this._canvas, [this._rectElement]); break;
+				case 'layer-up': moveLayerUp(this._canvas, this._rectElement); break;
+				case 'layer-down': moveLayerDown(this._canvas, this._rectElement); break;
 			}
 		});
 

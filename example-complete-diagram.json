@@ -1,0 +1,233 @@
+{
+  "v": "1.1",
+  "s": [
+    {
+      "type": 2,
+      "position": {
+        "x": 100,
+        "y": 100
+      },
+      "w": 120,
+      "h": 60,
+      "title": "开始",
+      "styles": ["cl-green"]
+    },
+    {
+      "type": 1,
+      "position": {
+        "x": 300,
+        "y": 100
+      },
+      "r": 50,
+      "title": "处理数据",
+      "styles": ["cl-blue"]
+    },
+    {
+      "type": 4,
+      "position": {
+        "x": 500,
+        "y": 100
+      },
+      "w": 120,
+      "title": "数据有效？",
+      "styles": ["cl-orange"]
+    },
+    {
+      "type": 2,
+      "position": {
+        "x": 700,
+        "y": 50
+      },
+      "w": 100,
+      "h": 50,
+      "title": "保存数据",
+      "styles": ["cl-green"]
+    },
+    {
+      "type": 2,
+      "position": {
+        "x": 700,
+        "y": 150
+      },
+      "w": 100,
+      "h": 50,
+      "title": "显示错误",
+      "styles": ["cl-red"]
+    },
+    {
+      "type": 3,
+      "position": {
+        "x": 500,
+        "y": 200
+      },
+      "w": 80,
+      "h": 25,
+      "title": "错误处理",
+      "styles": ["cl-dgray"],
+      "a": 2,
+      "t": true
+    },
+    {
+      "type": 5,
+      "position": {
+        "x": 400,
+        "y": 300
+      },
+      "w": 350,
+      "h": 120,
+      "title": "数据处理模块",
+      "styles": ["cl-dblue"]
+    },
+    {
+      "type": 2,
+      "position": {
+        "x": 300,
+        "y": 280
+      },
+      "w": 80,
+      "h": 40,
+      "title": "验证",
+      "styles": ["cl-blue"]
+    },
+    {
+      "type": 2,
+      "position": {
+        "x": 400,
+        "y": 280
+      },
+      "w": 80,
+      "h": 40,
+      "title": "转换",
+      "styles": ["cl-blue"]
+    },
+    {
+      "type": 2,
+      "position": {
+        "x": 500,
+        "y": 280
+      },
+      "w": 80,
+      "h": 40,
+      "title": "存储",
+      "styles": ["cl-blue"]
+    },
+    {
+      "type": 1,
+      "position": {
+        "x": 900,
+        "y": 100
+      },
+      "r": 40,
+      "title": "结束",
+      "styles": ["cl-green"]
+    },
+    {
+      "type": 0,
+      "s": {
+        "s": 0,
+        "k": "right"
+      },
+      "e": {
+        "s": 1,
+        "k": "left"
+      },
+      "c": "arw-e"
+    },
+    {
+      "type": 0,
+      "s": {
+        "s": 1,
+        "k": "right"
+      },
+      "e": {
+        "s": 2,
+        "k": "left"
+      },
+      "c": "arw-e"
+    },
+    {
+      "type": 0,
+      "s": {
+        "s": 2,
+        "k": "top"
+      },
+      "e": {
+        "s": 3,
+        "k": "left"
+      },
+      "c": "arw-e"
+    },
+    {
+      "type": 0,
+      "s": {
+        "s": 2,
+        "k": "bottom"
+      },
+      "e": {
+        "s": 4,
+        "k": "left"
+      },
+      "c": "arw-e dash"
+    },
+    {
+      "type": 0,
+      "s": {
+        "s": 3,
+        "k": "right"
+      },
+      "e": {
+        "s": 10,
+        "k": "left"
+      },
+      "c": "arw-e"
+    },
+    {
+      "type": 0,
+      "s": {
+        "s": 4,
+        "k": "bottom"
+      },
+      "e": {
+        "s": 5,
+        "k": "top"
+      },
+      "c": "arw-e dash"
+    },
+    {
+      "type": 0,
+      "s": {
+        "s": 7,
+        "k": "right"
+      },
+      "e": {
+        "s": 8,
+        "k": "left"
+      },
+      "c": "arw-e"
+    },
+    {
+      "type": 0,
+      "s": {
+        "s": 8,
+        "k": "right"
+      },
+      "e": {
+        "s": 9,
+        "k": "left"
+      },
+      "c": "arw-e"
+    },
+    {
+      "type": 0,
+      "s": {
+        "s": 1,
+        "k": "bottom"
+      },
+      "e": {
+        "s": 7,
+        "k": "top"
+      },
+      "c": "arw-s arw-e"
+    }
+  ]
+} 

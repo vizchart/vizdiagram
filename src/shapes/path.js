@@ -1,5 +1,6 @@
 import { child, classAdd, classDel, classHas, listen, listenDel, svgEl } from '../infrastructure/util.js';
 import { moveEvtProc, movementApplay } from '../infrastructure/move-evt-proc.js';
+
 import { placeToCell, pointInCanvas } from '../infrastructure/move-scale-applay.js';
 import { priorityElemFromPoint } from '../infrastructure/evt-route-applay.js';
 import { ShapeSmbl } from './shape-smbl.js';
@@ -129,13 +130,13 @@ export function path(canvas, pathData) {
 		canvas.ownerSVGElement,
 		svgGrp,
 		canvas[CanvasSmbl].data,
-		// data.end.position,
+		// 🔧 修复连线箭头跟随问题：阻止自动位置更新，手动控制位置
 		{
-			get x() { return pathData[movedEnd]?.data.position.x; },
-			set x(val) { if (movedEnd) { pathData[movedEnd].data.position.x = val; } },
+			get x() { return pathData[movedEnd]?.data.position.x || 0; },
+			set x(val) { /* 阻止自动位置更新，由onMove手动控制 */ },
 
-			get y() { return pathData[movedEnd]?.data.position.y; },
-			set y(val) { if (movedEnd) { pathData[movedEnd].data.position.y = val; } }
+			get y() { return pathData[movedEnd]?.data.position.y || 0; },
+			set y(val) { /* 阻止自动位置更新，由onMove手动控制 */ }
 		},
 		// onMoveStart
 		/** @param {PointerEvent & { target: Element} } evt */ evt => {
@@ -158,9 +159,13 @@ export function path(canvas, pathData) {
 					pathDelFromShape(pathData[movedEnd]);
 				}
 				pathData[movedEnd].shape = null;
+				// 🔧 修复连线创建时的初始位置：使用SVG相对坐标
+				const svgRect = canvas.ownerSVGElement.getBoundingClientRect();
+				const relativeX = evt.clientX - svgRect.left;
+				const relativeY = evt.clientY - svgRect.top;
 				pathData[movedEnd].data = {
 					dir: pathData[movedEnd].data.dir,
-					position: pointInCanvas(canvas[CanvasSmbl].data, evt.clientX, evt.clientY)
+					position: pointInCanvas(canvas[CanvasSmbl].data, relativeX, relativeY)
 				};
 			}
 
@@ -174,6 +179,18 @@ export function path(canvas, pathData) {
 			if (!movedEnd) {
 				moveWholePath(canvas[CanvasSmbl].data, pathData, draw, evt);
 			} else {
+				// 🔧 修复连线箭头跟随问题：使用SVG相对坐标
+				if (evt.clientX !== undefined && evt.clientY !== undefined) {
+					// 获取SVG元素的边界矩形
+					const svgRect = canvas.ownerSVGElement.getBoundingClientRect();
+					// 计算相对于SVG的坐标
+					const relativeX = evt.clientX - svgRect.left;
+					const relativeY = evt.clientY - svgRect.top;
+					// 转换为画布坐标
+					const mousePosition = pointInCanvas(canvas[CanvasSmbl].data, relativeX, relativeY);
+					pathData[movedEnd].data.position.x = mousePosition.x;
+					pathData[movedEnd].data.position.y = mousePosition.y;
+				}
 				draw();
 			}
 		},

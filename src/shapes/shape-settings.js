@@ -1,5 +1,5 @@
 import { copyAndPast } from '../diagram/group-select-applay.js';
-import { copySvg, delSvg } from '../infrastructure/assets.js';
+import { copySvg, delSvg, layerUpSvg, layerDownSvg } from '../infrastructure/assets.js';
 import { clickForAll, listen, classSingleAdd, evtTargetAttr } from '../infrastructure/util.js';
 import { modalChangeTop, modalCreate } from './modal-create.js';
 import { ShapeSmbl } from './shape-smbl.js';
@@ -17,9 +17,45 @@ export function settingsPnlCreate(canvas, shapeElement, bottomX, bottomY) {
 			case 'style': classSingleAdd(shapeElement, shapeElement[ShapeSmbl].data, 'cl-', evt.detail.arg); break;
 			case 'del': shapeElement[ShapeSmbl].del(); break;
 			case 'copy': copyAndPast(canvas, [shapeElement]); break;
+			case 'layer-up': moveLayerUp(canvas, shapeElement); break;
+			case 'layer-down': moveLayerDown(canvas, shapeElement); break;
 		}
 	});
 	return modalCreate(bottomX, bottomY, shapeSettings);
+}
+
+/**
+ * 将组件层级上移一层
+ * @param {import('../infrastructure/canvas-smbl').CanvasElement} canvas
+ * @param {import('./shape-smbl').ShapeElement} shapeElement
+ */
+function moveLayerUp(canvas, shapeElement) {
+	const nextSibling = shapeElement.nextElementSibling;
+	if (nextSibling) {
+		// 在SVG中，后面的元素显示在前面，所以要上移需要往后移动
+		canvas.insertBefore(nextSibling, shapeElement);
+		// 触发历史记录保存
+		setTimeout(() => {
+			document.dispatchEvent(new CustomEvent('diagramchange'));
+		}, 100);
+	}
+}
+
+/**
+ * 将组件层级下移一层
+ * @param {import('../infrastructure/canvas-smbl').CanvasElement} canvas
+ * @param {import('./shape-smbl').ShapeElement} shapeElement
+ */
+function moveLayerDown(canvas, shapeElement) {
+	const previousSibling = shapeElement.previousElementSibling;
+	if (previousSibling) {
+		// 在SVG中，前面的元素显示在后面，所以要下移需要往前移动
+		canvas.insertBefore(shapeElement, previousSibling);
+		// 触发历史记录保存
+		setTimeout(() => {
+			document.dispatchEvent(new CustomEvent('diagramchange'));
+		}, 100);
+	}
 }
 
 class ShapeEdit extends HTMLElement {
@@ -46,8 +82,14 @@ class ShapeEdit extends HTMLElement {
 					<div data-cmd="style" data-cmd-arg="cl-orange">
 						<div class="crcl" style="background: #ff6600"></div>
 					</div>
+					<div data-cmd="style" data-cmd-arg="cl-yellow">
+						<div class="crcl" style="background: #f39c12"></div>
+					</div>
 					<div data-cmd="style" data-cmd-arg="cl-green">
 						<div class="crcl" style="background: #19bc9b"></div>
+					</div>
+					<div data-cmd="style" data-cmd-arg="cl-teal">
+						<div class="crcl" style="background: white; border: 2px solid #dee2e6"></div>
 					</div>
 				</div>
 				<div class="ln">
@@ -56,6 +98,12 @@ class ShapeEdit extends HTMLElement {
 					</div>
 					<div data-cmd="style" data-cmd-arg="cl-dblue">
 						<div class="crcl" style="background: #1D809F"></div>
+					</div>
+					<div data-cmd="style" data-cmd-arg="cl-purple">
+						<div class="crcl" style="background: #9b59b6"></div>
+					</div>
+					<div data-cmd="style" data-cmd-arg="cl-pink">
+						<div class="crcl" style="background: #e91e63"></div>
 					</div>
 					<div data-cmd="style" data-cmd-arg="cl-dgray">
 						<div class="crcl" style="background: #495057"></div>
@@ -67,6 +115,8 @@ class ShapeEdit extends HTMLElement {
 		<div class="ln">
 			<svg data-toggle="clr" viewBox="0 0 24 24" width="24" height="24"><path fill="none" d="M0 0h24v24H0z"/><path d="M19.228 18.732l1.768-1.768 1.767 1.768a2.5 2.5 0 1 1-3.535 0zM8.878 1.08l11.314 11.313a1 1 0 0 1 0 1.415l-8.485 8.485a1 1 0 0 1-1.414 0l-8.485-8.485a1 1 0 0 1 0-1.415l7.778-7.778-2.122-2.121L8.88 1.08zM11 6.03L3.929 13.1 11 20.173l7.071-7.071L11 6.029z" fill="rgb(52,71,103)"/></svg>
 			<svg data-toggle="prop"  ${this.getAttribute('edit-btn') ? '' : 'style="display: none;"'} viewBox="0 0 24 24" width="24" height="24"><path fill="none" d="M0 0h24v24H0z"/><path d="M12.9 6.858l4.242 4.243L7.242 21H3v-4.243l9.9-9.9zm1.414-1.414l2.121-2.122a1 1 0 0 1 1.414 0l2.829 2.829a1 1 0 0 1 0 1.414l-2.122 2.121-4.242-4.242z" fill="rgb(52,71,103)"/></svg>
+			${layerUpSvg}
+			${layerDownSvg}
 			${copySvg}
 			${delSvg}
 		</div>`;

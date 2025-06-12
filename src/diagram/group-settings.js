@@ -1,4 +1,4 @@
-import { copySvg, delSvg } from '../infrastructure/assets.js';
+import { copySvg, delSvg, layerUpSvg, layerDownSvg } from '../infrastructure/assets.js';
 import { clickForAll, evtTargetAttr } from '../infrastructure/util.js';
 
 export class GroupSettings extends HTMLElement {
@@ -21,6 +21,8 @@ export class GroupSettings extends HTMLElement {
 			[data-cmd] { cursor: pointer; }
 		</style>
 		<div class="ln">
+			${layerUpSvg}
+			${layerDownSvg}
 			${copySvg}
 			${delSvg}
 		</div>`;

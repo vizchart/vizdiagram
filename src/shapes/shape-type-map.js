@@ -2,6 +2,8 @@ import { circle } from './circle.js';
 import { path } from './path.js';
 import { rect } from './rect.js';
 import { rhomb } from './rhomb.js';
+import { container } from './container.js';
+import { image } from './image.js';
 
 /**
  * @param {CanvasElement} canvas
@@ -13,7 +15,9 @@ export function shapeTypeMap(canvas) {
 		1: { create: shapeData => circle(canvas, shapeData) },
 		2: { create: shapeData => rect(canvas, shapeData) },
 		3: { create: shapeData => { /** @type {RectData} */(shapeData).t = true; return rect(canvas, shapeData); } },
-		4: { create: shapeData => rhomb(canvas, shapeData) }
+		4: { create: shapeData => rhomb(canvas, shapeData) },
+		5: { create: shapeData => container(canvas, shapeData) },
+		6: { create: shapeData => image(canvas, shapeData) }
 	};
 }
 

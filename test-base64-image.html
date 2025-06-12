@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base64 Image Upload Test - DgrmJS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .test-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .feature-list {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .feature-list ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .feature-list li {
+            margin-bottom: 8px;
+        }
+        
+        .code-block {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #ffc107;
+            margin: 15px 0;
+        }
+        
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .info {
+            color: #17a2b8;
+            font-weight: bold;
+        }
+        
+        .warning {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        
+        .steps {
+            counter-reset: step-counter;
+        }
+        
+        .step {
+            counter-increment: step-counter;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #6c757d;
+        }
+        
+        .step::before {
+            content: "步骤 " counter(step-counter) ": ";
+            font-weight: bold;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🖼️ Base64 图片上传功能测试</h1>
+        <p>DgrmJS 新增功能：小于200KB的图片自动使用base64嵌入到JSON中</p>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 功能概述</h2>
+        <div class="feature-list">
+            <h3>新增功能特性：</h3>
+            <ul>
+                <li><strong>智能文件大小检测</strong>：自动检测上传图片的文件大小</li>
+                <li><strong>Base64嵌入</strong>：小于200KB的图片转换为base64并直接嵌入到图表JSON中</li>
+                <li><strong>服务器上传</strong>：大于等于200KB的图片继续使用原有的服务器上传流程</li>
+                <li><strong>无需登录</strong>：Base64图片不需要登录或保存图表即可使用</li>
+                <li><strong>离线友好</strong>：Base64图片完全自包含，支持离线使用</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 技术实现</h2>
+        
+        <h3>文件大小检测逻辑：</h3>
+        <div class="code-block">
+const fileSizeKB = file.size / 1024;
+console.log(`File size: ${fileSizeKB.toFixed(2)} KB`);
+
+// 检查文件大小，如果小于100KB则使用base64嵌入到JSON中
+if (file.size < 100 * 1024) { // 100KB = 100 * 1024 bytes
+    // 转换为base64 data URL
+    const base64Url = await fileToBase64(file);
+    
+    // 直接在本地显示图片，不上传到服务器
+    // base64数据将自动嵌入到图表JSON中，无需服务器存储
+    imageData.imageUrl = base64Url;
+    imageData.fileId = null;
+    imageData.isBase64 = true;
+} else {
+    // 大文件继续使用服务器上传流程
+    const result = await drupalAPI.addImageToRefImagesField(file, nodeId);
+}
+        </div>
+
+        <h3>Base64转换函数：</h3>
+        <div class="code-block">
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+    });
+}
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>📋 测试步骤</h2>
+        <div class="steps">
+            <div class="step">
+                打开DgrmJS图表编辑器
+            </div>
+            <div class="step">
+                从左侧工具栏拖拽图片组件到画布上
+            </div>
+            <div class="step">
+                双击图片组件，选择图片文件
+                <div class="highlight">
+                    <strong>测试建议：</strong>准备两个图片文件
+                    <ul>
+                        <li><strong>小图片</strong>：< 100KB（如小图标、简单图形）- 可直接使用，无需登录或保存</li>
+                        <li><strong>大图片</strong>：> 100KB（如高分辨率照片）- 需要登录并保存画布</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="step">
+                观察控制台输出，应该看到：
+                <div class="code-block">
+📦 File is less than 100KB, using base64 embedding...
+✅ Image embedded as base64 successfully
+                </div>
+            </div>
+            <div class="step">
+                导出图表JSON（菜单 → Export Metadata），检查JSON文件中的图片数据：
+                <div class="code-block">
+{
+  "type": 6,
+  "position": {"x": 100, "y": 100},
+  "w": 120,
+  "h": 120,
+  "imageUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+  "fileId": null,
+  "isBase64": true
+}
+                </div>
+            </div>
+            <div class="step">
+                测试大文件（>200KB），应该看到智能提示：
+                <div class="code-block">
+🔐 图片大于200KB需要上传到服务器
+
+请先登录，然后回到这里保存图片：
+https://graphmaker.intra.vizcms.cn/user/login
+
+💡 提示：如果使用小于200KB的图片，可以直接嵌入无需登录
+                </div>
+                如果已登录但未保存画布，会看到：
+                <div class="code-block">
+⚠️ 图片大于200KB需要上传到服务器
+
+请先保存您的画布，然后才能上传大图片
+
+💡 提示：如果使用小于200KB的图片，可以直接嵌入无需保存画布
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>✅ 预期结果</h2>
+        
+        <h3><span class="success">小文件（< 200KB）：</span></h3>
+        <ul>
+            <li>✅ 无需登录即可使用</li>
+            <li>✅ 无需保存图表即可添加图片</li>
+            <li>✅ 图片数据直接嵌入JSON</li>
+            <li>✅ 控制台显示base64嵌入成功</li>
+            <li>✅ imageData.isBase64 = true</li>
+            <li>✅ imageData.fileId = null</li>
+        </ul>
+
+        <h3><span class="info">大文件（≥ 200KB）：</span></h3>
+        <ul>
+            <li>🔐 需要登录才能上传</li>
+            <li>💾 需要先保存图表</li>
+            <li>☁️ 上传到服务器ref_images字段</li>
+            <li>🔗 imageData.fileId包含服务器文件ID</li>
+            <li>✅ imageData.isBase64 = false</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🎉 优势总结</h2>
+        <div class="feature-list">
+            <h3>这个功能带来的好处：</h3>
+            <ul>
+                <li><strong>更好的用户体验</strong>：小图片可以立即使用，无需登录</li>
+                <li><strong>减少服务器负载</strong>：小文件不占用服务器存储空间</li>
+                <li><strong>完全自包含</strong>：图表JSON包含所有必要数据，便于分享</li>
+                <li><strong>离线支持</strong>：Base64图片支持完全离线使用</li>
+                <li><strong>智能选择</strong>：根据文件大小自动选择最佳处理方式</li>
+                <li><strong>向后兼容</strong>：不影响现有的大文件上传流程</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔍 技术细节</h2>
+        
+        <h3>数据结构更新：</h3>
+        <div class="code-block">
+// ImageData类型定义已更新
+typedef {{
+    type: number,
+    position: Point,
+    title?: string,
+    styles?: string[],
+    w?: number,
+    h?: number,
+    imageUrl?: string,
+    fileId?: string,
+    isBase64?: boolean  // 新增：标识是否为base64图片
+}} ImageData
+        </div>
+
+        <h3>文件大小阈值：</h3>
+        <div class="highlight">
+            <strong>100KB阈值选择理由：</strong>
+            <ul>
+                <li>足够容纳大多数图标、简单图形和小图片</li>
+                <li>避免JSON文件过大影响性能</li>
+                <li>平衡用户体验和系统性能</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html> 

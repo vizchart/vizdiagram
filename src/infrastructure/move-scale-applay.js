@@ -43,7 +43,7 @@ export function moveScaleApplay(canvas) {
 	 * @param {Point} originPoint
 	 */
 	function scale(nextScale, originPoint) {
-		if (nextScale < 0.25 || nextScale > 4) { return; }
+		if (nextScale < 0.1 || nextScale > 4) { return; }
 
 		const divis = nextScale / canvasData.scale;
 		canvasData.scale = nextScale;

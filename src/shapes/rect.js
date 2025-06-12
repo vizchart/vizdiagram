@@ -28,8 +28,12 @@ export function rect(canvas, rectData) {
 		// onTextChange
 		txtEl => {
 			const textBox = txtEl.getBBox();
-			const newWidth = ceil(96, 48, textBox.width + (rectData.t ? 6 : 0)); // 6 px right padding for text shape
-			const newHeight = ceil(48, 48, textBox.height);
+			const minWidth = ceil(96, 48, textBox.width + (rectData.t ? 6 : 0)); // 6 px right padding for text shape
+			const minHeight = ceil(48, 48, textBox.height);
+
+			// Only expand the shape if text doesn't fit, don't shrink if user manually resized
+			const newWidth = Math.max(rectData.w, minWidth);
+			const newHeight = Math.max(rectData.h, minHeight);
 
 			if (rectData.w !== newWidth || rectData.h !== newHeight) {
 				rectData.w = newWidth;
@@ -56,6 +60,7 @@ export function rect(canvas, rectData) {
 		shape.cons.bottom.position.x = middleX;
 		shape.cons.top.position.y = mainY;
 		shape.cons.top.position.x = middleX;
+		
 		for (const connectorKey in shape.cons) {
 			positionSet(child(shape.el, connectorKey), shape.cons[connectorKey].position);
 		}

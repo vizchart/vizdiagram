@@ -1,5 +1,5 @@
-import { child, classAdd, classDel, deepCopy, svgEl } from '../infrastructure/util.js';
-import { moveEvtProc } from '../infrastructure/move-evt-proc.js';
+import { child, classAdd, classDel, deepCopy, svgEl, positionSet, listen, listenDel } from '../infrastructure/util.js';
+import { moveEvtProc, movementApplay } from '../infrastructure/move-evt-proc.js';
 import { path, dirReverse } from './path.js';
 import { textareaCreate } from '../infrastructure/svg-text-area.js';
 import { settingsPnlCreate } from './shape-settings.js';
@@ -145,6 +145,9 @@ function shapeEvtProc(canvas, svgGrp, shapeData, connectorsInnerPosition, onEdit
 	/** @type { Set<PathElement> } */
 	const paths = new Set();
 
+	/** @type { {show():void, hide():void, updatePosition():void} | null } */
+	let resizeHandle = null;
+
 	function drawPosition() {
 		svgGrp.style.transform = `translate(${shapeData.position.x}px, ${shapeData.position.y}px)`;
 
@@ -158,6 +161,11 @@ function shapeEvtProc(canvas, svgGrp, shapeData, connectorsInnerPosition, onEdit
 
 		for (const path of paths) {
 			path[PathSmbl].draw();
+		}
+
+		// Update resize handle position if visible
+		if (resizeHandle) {
+			resizeHandle.updatePosition();
 		}
 	};
 
@@ -177,6 +185,11 @@ function shapeEvtProc(canvas, svgGrp, shapeData, connectorsInnerPosition, onEdit
 		classDel(svgGrp, 'select');
 		classDel(svgGrp, 'highlight');
 
+		// Hide resize handle
+		if (resizeHandle) {
+			resizeHandle.hide();
+		}
+
 		canvasSelectionClearSet(canvas, null);
 		if (listenCopyDispose) { listenCopyDispose(); listenCopyDispose = null;	}
 	}
@@ -189,6 +202,11 @@ function shapeEvtProc(canvas, svgGrp, shapeData, connectorsInnerPosition, onEdit
 		// onMoveStart
 		/** @param {PointerEvent & { target: Element} } evt */
 		evt => {
+			// Don't start move if clicking on resize handle
+			if (evt.target.getAttribute('data-resize-handle')) {
+				return;
+			}
+
 			unSelect();
 
 			const connectorKey = evt.target.getAttribute('data-connect');
@@ -226,6 +244,10 @@ function shapeEvtProc(canvas, svgGrp, shapeData, connectorsInnerPosition, onEdit
 				state = 2;
 				classDel(svgGrp, 'select');
 				classAdd(svgGrp, 'highlight');
+				// Hide resize handle in edit mode
+				if (resizeHandle) {
+					resizeHandle.hide();
+				}
 				// edit mode
 				onEdit();
 				return;
@@ -234,6 +256,12 @@ function shapeEvtProc(canvas, svgGrp, shapeData, connectorsInnerPosition, onEdit
 			// to select mode
 			state = 1;
 			classAdd(svgGrp, 'select');
+
+			// Create and show resize handle
+			if (!resizeHandle) {
+				resizeHandle = createResizeHandle(svgGrp, shapeData, drawPosition);
+			}
+			resizeHandle.show();
 
 			canvasSelectionClearSet(canvas, unSelect);
 			listenCopyDispose = listenCopy(() => [svgGrp]);
@@ -273,6 +301,193 @@ function shapeEvtProc(canvas, svgGrp, shapeData, connectorsInnerPosition, onEdit
 	};
 }
 
+/**
+ * Creates a resize handle for shapes
+ * @param {ShapeElement} shapeEl - The shape element
+ * @param {ShapeData} shapeData - The shape data
+ * @param {()=>void} drawPosition - Function to redraw the shape
+ */
+function createResizeHandle(shapeEl, shapeData, drawPosition) {
+	/** @type {SVGCircleElement | null} */
+	let resizeHandle = null;
+	let isResizing = false;
+	let startSize = { w: 0, h: 0 };
+	let startPosition = { x: 0, y: 0 };
+
+	/**
+	 * Get shape bounds for positioning the resize handle
+	 */
+	function getShapeBounds() {
+		const w = shapeData.w || 96;
+		const h = shapeData.h || 48;
+		const r = shapeData.r || 48;
+
+		if (shapeData.type === 1) { // Circle
+			return {
+				right: r * 0.7,
+				bottom: r * 0.7
+			};
+		} else if (shapeData.type === 4) { // Rhomb
+			return {
+				right: (w || 96) * 0.4,
+				bottom: (w || 96) * 0.4
+			};
+		} else if (shapeData.type === 6) { // Image
+			return {
+				right: (w || 120) / 2 - 5,
+				bottom: (h || 120) / 2 - 5
+			};
+		} else { // Rect and Text
+			return {
+				right: (w || 96) / 2 - 5,
+				bottom: (h || 48) / 2 - 5
+			};
+		}
+	}
+
+	/**
+	 * Update handle position based on shape bounds
+	 */
+	function updatePosition() {
+		if (!resizeHandle) return;
+
+		const bounds = getShapeBounds();
+		// Use transform instead of positionSet to avoid conflicts
+		resizeHandle.style.transform = `translate(${bounds.right}px, ${bounds.bottom}px)`;
+	}
+
+	/**
+	 * Handle pointer down on resize handle
+	 * @param {PointerEvent} evt
+	 */
+	function onPointerDown(evt) {
+		evt.stopPropagation();
+		evt.preventDefault();
+
+		isResizing = true;
+		startPosition = { x: evt.clientX, y: evt.clientY };
+		
+		// Store initial size
+		startSize = {
+			w: shapeData.w || shapeData.r * 2 || 96,
+			h: shapeData.h || shapeData.r * 2 || 48
+		};
+
+		const svg = shapeEl.ownerSVGElement;
+		svg.setPointerCapture(evt.pointerId);
+
+		// Use non-passive listeners for resize operations
+		svg.addEventListener('pointermove', onPointerMove, { passive: false });
+		svg.addEventListener('pointerup', onPointerUp, { passive: false });
+		svg.addEventListener('pointercancel', onPointerUp, { passive: false });
+	}
+
+	/**
+	 * Handle pointer move during resize
+	 * @param {PointerEvent} evt
+	 */
+	function onPointerMove(evt) {
+		if (!isResizing) return;
+
+		evt.preventDefault();
+		evt.stopPropagation();
+
+		const deltaX = evt.clientX - startPosition.x;
+		const deltaY = evt.clientY - startPosition.y;
+		
+		// Get canvas scale from the canvas element that contains this shape
+		const canvasElement = shapeEl.parentElement; // This should be the canvas element
+		const canvasScale = canvasElement?.[CanvasSmbl]?.data?.scale || 1;
+		
+		const scaledDeltaX = deltaX / canvasScale;
+		const scaledDeltaY = deltaY / canvasScale;
+
+		if (shapeData.type === 1) { // Circle
+			const delta = Math.max(scaledDeltaX, scaledDeltaY);
+			const newRadius = Math.max(24, startSize.w / 2 + delta);
+			shapeData.r = newRadius;
+		} else if (shapeData.type === 4) { // Rhomb
+			const delta = Math.max(scaledDeltaX, scaledDeltaY);
+			const newWidth = Math.max(48, startSize.w + delta);
+			shapeData.w = newWidth;
+		} else { // Rect and Text
+			const newWidth = Math.max(48, startSize.w + scaledDeltaX);
+			const newHeight = Math.max(24, startSize.h + scaledDeltaY);
+			shapeData.w = newWidth;
+			shapeData.h = newHeight;
+		}
+
+		// Trigger shape-specific resize logic
+		if (shapeEl[ShapeSmbl].draw) {
+			shapeEl[ShapeSmbl].draw();
+		}
+		drawPosition();
+		updatePosition();
+	}
+
+	/**
+	 * Handle pointer up to end resize
+	 * @param {PointerEvent} evt
+	 */
+	function onPointerUp(evt) {
+		if (!isResizing) return;
+
+		isResizing = false;
+		const svg = shapeEl.ownerSVGElement;
+		
+		// Remove non-passive listeners
+		svg.removeEventListener('pointermove', onPointerMove);
+		svg.removeEventListener('pointerup', onPointerUp);
+		svg.removeEventListener('pointercancel', onPointerUp);
+
+		// Trigger history save after resize
+		setTimeout(() => {
+			document.dispatchEvent(new CustomEvent('diagramchange'));
+		}, 100);
+	}
+
+	return {
+		/**
+		 * Show the resize handle
+		 */
+		show() {
+			if (resizeHandle) return;
+
+			resizeHandle = svgEl('circle');
+			resizeHandle.setAttribute('r', '10');
+			resizeHandle.setAttribute('fill', 'rgba(34, 197, 94, 0.8)'); // Light green
+			resizeHandle.setAttribute('stroke', 'rgba(34, 197, 94, 1)');
+			resizeHandle.setAttribute('stroke-width', '2');
+			resizeHandle.setAttribute('data-resize-handle', 'true');
+			resizeHandle.style.cursor = 'se-resize';
+			resizeHandle.style.pointerEvents = 'all';
+
+			// Position at bottom-right corner
+			updatePosition();
+			
+			shapeEl.appendChild(resizeHandle);
+
+			// Add event listeners - use non-passive for resize handle
+			resizeHandle.addEventListener('pointerdown', onPointerDown, { passive: false });
+		},
+
+		/**
+		 * Hide the resize handle
+		 */
+		hide() {
+			if (!resizeHandle) return;
+			
+			resizeHandle.remove();
+			resizeHandle = null;
+		},
+
+		/**
+		 * Update handle position
+		 */
+		updatePosition
+	};
+}
+
 /** @typedef { {x:number, y:number} } Point */
 /** @typedef { {position:Point, scale:number, cell:number} } CanvasData */
 
@@ -280,7 +495,7 @@ function shapeEvtProc(canvas, svgGrp, shapeData, connectorsInnerPosition, onEdit
 /** @typedef { {position: Point, dir: PathDir} } PathEnd */
 /** @typedef { Object.<string, PathEnd> } ConnectorsData */
 
-/** @typedef { {type: number, position: Point, styles?:string[]} } ShapeData */
+/** @typedef { {type: number, position: Point, w?: number, h?: number, r?: number, styles?:string[]} } ShapeData */
 /**
 @typedef {{
 	pathAdd(connectorKey:string, pathEl:PathElement): PathEnd

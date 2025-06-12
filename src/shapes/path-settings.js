@@ -2,6 +2,40 @@ import { copyAndPast } from '../diagram/group-select-applay.js';
 import { classAdd, classDel, clickForAll, listen, classSingleAdd, evtTargetAttr } from '../infrastructure/util.js';
 import { PathSmbl } from './path-smbl.js';
 
+/**
+ * 将路径层级上移一层
+ * @param {import('../infrastructure/canvas-smbl').CanvasElement} canvas
+ * @param {import('./path-smbl').PathElement} pathElement
+ */
+function moveLayerUp(canvas, pathElement) {
+	const nextSibling = pathElement.nextElementSibling;
+	if (nextSibling) {
+		// 在SVG中，后面的元素显示在前面，所以要上移需要往后移动
+		canvas.insertBefore(nextSibling, pathElement);
+		// 触发历史记录保存
+		setTimeout(() => {
+			document.dispatchEvent(new CustomEvent('diagramchange'));
+		}, 100);
+	}
+}
+
+/**
+ * 将路径层级下移一层
+ * @param {import('../infrastructure/canvas-smbl').CanvasElement} canvas
+ * @param {import('./path-smbl').PathElement} pathElement
+ */
+function moveLayerDown(canvas, pathElement) {
+	const previousSibling = pathElement.previousElementSibling;
+	if (previousSibling) {
+		// 在SVG中，前面的元素显示在后面，所以要下移需要往前移动
+		canvas.insertBefore(pathElement, previousSibling);
+		// 触发历史记录保存
+		setTimeout(() => {
+			document.dispatchEvent(new CustomEvent('diagramchange'));
+		}, 100);
+	}
+}
+
 export class PathSettings extends HTMLElement {
 	/**
  	 * @param {CanvasElement} canvas
@@ -44,28 +78,37 @@ export class PathSettings extends HTMLElement {
 			</div>
 		</ap-shape-edit>`;
 
-		// colors, del
+		// colors, del, layer controls
 		listen(shadow.getElementById('edit'), 'cmd', /** @param {CustomEvent<{cmd:string, arg:string}>} evt */ evt => {
 			switch (evt.detail.cmd) {
 				case 'style': classSingleAdd(this._pathElement, this._pathElement[PathSmbl].data, 'cl-', evt.detail.arg); break;
 				case 'del': this._pathElement[PathSmbl].del(); break;
 				case 'copy': copyAndPast(this._canvas, [this._pathElement]); break;
+				case 'layer-up': moveLayerUp(this._canvas, this._pathElement); break;
+				case 'layer-down': moveLayerDown(this._canvas, this._pathElement); break;
 			}
 		});
 
-		// arrows, dotted
+		// path styles
 		clickForAll(shadow, '[data-cmd]', evt => {
-			const argStyle = evtTargetAttr(evt, 'data-cmd-arg');
-			const currentArr = pathStyles.indexOf(argStyle);
-			if (currentArr > -1) {
-				classDel(this._pathElement, argStyle);
-				pathStyles.splice(currentArr, 1);
-				classDel(evt.currentTarget, 'actv');
+			const styleToToggle = evtTargetAttr(evt, 'data-cmd-arg');
+			if (!styleToToggle) { return; }
+
+			const pathData = this._pathElement[PathSmbl].data;
+			if (!pathData.styles) { pathData.styles = []; }
+
+			const styleIndex = pathData.styles.indexOf(styleToToggle);
+			if (styleIndex > -1) {
+				// Remove style
+				pathData.styles.splice(styleIndex, 1);
+				classDel(this._pathElement, styleToToggle);
 			} else {
-				classAdd(this._pathElement, argStyle);
-				pathStyles.push(argStyle);
-				classAdd(evt.currentTarget, 'actv');
+				// Add style
+				pathData.styles.push(styleToToggle);
+				classAdd(this._pathElement, styleToToggle);
 			}
+
+			this._pathElement[PathSmbl].draw();
 		});
 	}
 }

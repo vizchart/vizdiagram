@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DgrmJS URL 初始化功能测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .test-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .test-section h3 {
+            color: #495057;
+            margin-top: 0;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 10px;
+        }
+        .test-link {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 5px 10px 5px 0;
+            transition: background-color 0.3s;
+        }
+        .test-link:hover {
+            background: #0056b3;
+            color: white;
+        }
+        .test-link.error {
+            background: #dc3545;
+        }
+        .test-link.error:hover {
+            background: #c82333;
+        }
+        .test-link.success {
+            background: #28a745;
+        }
+        .test-link.success:hover {
+            background: #218838;
+        }
+        .description {
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+        }
+        .code {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .file-list {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 DgrmJS URL 初始化功能测试</h1>
+        <p>点击下方链接测试不同的URL初始化场景</p>
+    </div>
+
+    <div class="instructions">
+        <h3>📋 测试前准备</h3>
+        <ol>
+            <li>确保开发服务器正在运行：<code>npm run dev:simple</code></li>
+            <li>确认服务器地址：<code>http://localhost:3001</code></li>
+            <li>打开浏览器开发者工具（F12）查看控制台输出</li>
+        </ol>
+    </div>
+
+    <div class="file-list">
+        <h3>📁 测试文件列表</h3>
+        <ul>
+            <li><strong>test-diagram.json</strong> - 有效的图表JSON文件（4个元素）</li>
+            <li><strong>invalid.json</strong> - 无效格式的JSON文件（用于错误测试）</li>
+            <li><strong>test-diagram.png</strong> - PNG图表文件（需要手动创建）</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h3>✅ 正常功能测试</h3>
+        
+        <h4>JSON格式加载</h4>
+        <a href="http://localhost:3001/index.dev.html?type=json&file=/test-diagram.json" 
+           class="test-link success" target="_blank">
+            📄 完整路径JSON加载
+        </a>
+        <a href="http://localhost:3001/index.dev.html?type=json&file=test-diagram" 
+           class="test-link success" target="_blank">
+            📄 自动扩展名JSON加载
+        </a>
+        <div class="description">
+            期望结果：成功加载包含蓝色矩形、绿色圆形、灰色文本和连接线的图表
+        </div>
+
+        <h4>PNG格式加载（需要先创建PNG文件）</h4>
+        <a href="http://localhost:3001/index.dev.html?type=png&file=/test-diagram.png" 
+           class="test-link success" target="_blank">
+            🖼️ PNG文件加载
+        </a>
+        <div class="description">
+            期望结果：从PNG文件中提取并加载图表数据
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>❌ 错误处理测试</h3>
+        
+        <a href="http://localhost:3001/index.dev.html?type=json&file=/nonexistent.json" 
+           class="test-link error" target="_blank">
+            🚫 文件不存在（404错误）
+        </a>
+        <a href="http://localhost:3001/index.dev.html?type=invalid&file=/test-diagram.json" 
+           class="test-link error" target="_blank">
+            🚫 无效类型参数
+        </a>
+        <a href="http://localhost:3001/index.dev.html?type=json&file=/invalid.json" 
+           class="test-link error" target="_blank">
+            🚫 无效JSON格式
+        </a>
+        <div class="description">
+            期望结果：显示相应的错误提示弹窗和控制台错误信息
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>🌐 Drupal节点加载测试</h3>
+        
+        <a href="http://localhost:3001/index.dev.html?type=drupal&uuid=12345678-1234-1234-1234-123456789abc" 
+           class="test-link" target="_blank">
+            🔗 Drupal UUID加载（示例UUID）
+        </a>
+        <div class="description">
+            通过UUID从Drupal AIGC节点加载图表数据。需要替换为真实的节点UUID。
+        </div>
+        
+        <h4>跨域代理测试</h4>
+        <a href="http://localhost:3001/index.dev.html?type=json&file=/drupal-files/sites/default/files/test.json" 
+           class="test-link" target="_blank">
+            🔗 Drupal代理JSON加载
+        </a>
+        <a href="http://localhost:3001/drupal-files/" 
+           class="test-link" target="_blank">
+            🔗 直接访问代理路径
+        </a>
+        <div class="description">
+            注意：这些测试需要Drupal服务器上存在对应文件，可能返回404错误
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>🔧 服务器状态检查</h3>
+        
+        <a href="http://localhost:3001/health" 
+           class="test-link" target="_blank">
+            ❤️ 健康检查
+        </a>
+        <a href="http://localhost:3001/debug/cookies" 
+           class="test-link" target="_blank">
+            🍪 Cookie调试
+        </a>
+        <a href="http://localhost:3001/test-diagram.json" 
+           class="test-link" target="_blank">
+            📄 直接访问JSON文件
+        </a>
+        <div class="description">
+            用于验证服务器状态和文件访问权限
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>🧪 自动化测试</h3>
+        <button onclick="runAutomatedTests()" class="test-link">
+            🤖 运行自动化测试
+        </button>
+        <div class="description">
+            在新标签页中批量打开所有测试用例
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>🔍 缩放参数测试</h3>
+        <p>测试初始缩放值设置功能</p>
+        
+        <h4>仅设置缩放值（空白画布）</h4>
+        <a href="http://localhost:3001/index.dev.html?scale=0.1" class="test-link" target="_blank">10% 缩放（最小）</a>
+        <a href="http://localhost:3001/index.dev.html?scale=0.2" class="test-link" target="_blank">20% 缩放</a>
+        <a href="http://localhost:3001/index.dev.html?scale=0.25" class="test-link" target="_blank">25% 缩放</a>
+        <a href="http://localhost:3001/index.dev.html?scale=0.4" class="test-link" target="_blank">40% 缩放</a>
+        <a href="http://localhost:3001/index.dev.html?scale=0.5" class="test-link" target="_blank">50% 缩放</a>
+        <a href="http://localhost:3001/index.dev.html?scale=0.75" class="test-link" target="_blank">75% 缩放</a>
+        <a href="http://localhost:3001/index.dev.html?scale=1.0" class="test-link" target="_blank">100% 缩放（默认）</a>
+        <a href="http://localhost:3001/index.dev.html?scale=1.5" class="test-link" target="_blank">150% 缩放</a>
+        <a href="http://localhost:3001/index.dev.html?scale=2.0" class="test-link" target="_blank">200% 缩放</a>
+        <a href="http://localhost:3001/index.dev.html?scale=4.0" class="test-link" target="_blank">400% 缩放（最大）</a>
+        
+        <h4>加载图表 + 缩放设置</h4>
+        <a href="http://localhost:3001/index.dev.html?type=json&file=/test-diagram.json&scale=0.2" class="test-link" target="_blank">加载测试图表 + 20% 缩放</a>
+        <a href="http://localhost:3001/index.dev.html?type=json&file=/test-diagram.json&scale=0.4" class="test-link" target="_blank">加载测试图表 + 40% 缩放</a>
+        <a href="http://localhost:3001/index.dev.html?type=json&file=/test-diagram.json&scale=0.5" class="test-link" target="_blank">加载测试图表 + 50% 缩放</a>
+        <a href="http://localhost:3001/index.dev.html?type=json&file=/test-diagram.json&scale=1.5" class="test-link" target="_blank">加载测试图表 + 150% 缩放</a>
+        <a href="http://localhost:3001/index.dev.html?type=json&file=/test-diagram.json&scale=2.0" class="test-link" target="_blank">加载测试图表 + 200% 缩放</a>
+        
+        <h4>错误处理测试</h4>
+        <a href="http://localhost:3001/index.dev.html?scale=0.05" class="test-link error" target="_blank">无效缩放值（0.05，小于最小值）</a>
+        <a href="http://localhost:3001/index.dev.html?scale=5.0" class="test-link error" target="_blank">无效缩放值（5.0，大于最大值）</a>
+        <a href="http://localhost:3001/index.dev.html?scale=abc" class="test-link error" target="_blank">无效缩放值（非数字）</a>
+        
+        <div class="description">
+            <strong>缩放参数说明：</strong><br>
+            • 有效范围：0.1 - 4.0<br>
+            • 默认值：1.0<br>
+            • 超出范围或无效值将使用默认值<br>
+            • 控制台会显示相应的日志信息
+        </div>
+    </div>
+
+    <div class="status">
+        <h3>📊 测试状态监控</h3>
+        <p>打开浏览器开发者工具（F12）查看详细的测试结果：</p>
+        <div class="code">
+🔄 Initializing diagram from URL: type=json, file=/test-diagram.json
+📄 Loading JSON diagram from: /test-diagram.json
+✅ Successfully loaded JSON diagram with 4 elements
+        </div>
+        <p><strong>成功标志：</strong></p>
+        <ul>
+            <li>✅ 控制台显示成功加载信息</li>
+            <li>📊 图表正确显示在画布上</li>
+            <li>🎯 提示信息自动隐藏</li>
+            <li>📝 历史记录正确初始化</li>
+        </ul>
+    </div>
+
+    <script>
+        function runAutomatedTests() {
+            const testCases = [
+                // 成功测试
+                { name: 'JSON完整路径', url: '?type=json&file=/test-diagram.json' },
+                { name: 'JSON自动扩展名', url: '?type=json&file=test-diagram' },
+                
+                // Drupal测试
+                { name: 'Drupal UUID加载', url: '?type=drupal&uuid=12345678-1234-1234-1234-123456789abc' },
+                
+                // 错误测试
+                { name: '文件不存在', url: '?type=json&file=/nonexistent.json' },
+                { name: '无效类型', url: '?type=invalid&file=/test-diagram.json' },
+                { name: '无效JSON', url: '?type=json&file=/invalid.json' },
+                { name: 'Drupal无效UUID', url: '?type=drupal&uuid=invalid-uuid' },
+                
+                // 代理测试
+                { name: 'Drupal代理', url: '?type=json&file=/drupal-files/sites/default/files/test.json' }
+            ];
+            
+            console.log('🤖 开始自动化测试...');
+            
+            testCases.forEach((testCase, index) => {
+                setTimeout(() => {
+                    const url = `http://localhost:3001/index.dev.html${testCase.url}`;
+                    console.log(`📋 测试 ${index + 1}/${testCases.length}: ${testCase.name}`);
+                    console.log(`🔗 URL: ${url}`);
+                    window.open(url, `_blank_test_${index}`);
+                }, index * 1000); // 每秒打开一个测试
+            });
+            
+            console.log(`✅ 已安排 ${testCases.length} 个测试用例`);
+            alert(`🤖 自动化测试已启动！\n\n将在 ${testCases.length} 秒内依次打开 ${testCases.length} 个测试标签页。\n\n请查看浏览器控制台和各个标签页的结果。`);
+        }
+
+        // 页面加载时检查服务器状态
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('http://localhost:3001/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ 服务器状态正常:', data);
+                } else {
+                    console.warn('⚠️ 服务器响应异常:', response.status);
+                }
+            } catch (error) {
+                console.error('❌ 无法连接到开发服务器:', error);
+                alert('❌ 无法连接到开发服务器！\n\n请确保已启动开发服务器：npm run dev:simple');
+            }
+        });
+    </script>
+</body>
+</html> 

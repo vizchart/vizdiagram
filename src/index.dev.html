@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta charset="utf-8">
+	<link rel="icon" type="image/png"
+		href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAN5JREFUSEvNlc0RgyAQRtk2xEsqyaQEtYCYyoIFxFpSQg6BczrYDEZn+BdXnAk3D7zHt6wLsIMXHMxn/y+oRiUYwzMANrKpn25FdiWY4dcZ+gHAiyshC/jj3SPA3TmxJyELNNhJsLhequWn5WOzYIIiour4LSyBQbVVTxJYJ0YmfIkN15LsBMFyGBJ9J7KrBamLIrX+sQxJ6KddTZCET0S/LKYoKdgLT95BCXhUUAoeFJSEe4LS8IBAYvx9SHdLbJ/VRdUYE9DgmQno8AzBPvimWUR9u1dHBRVMGtcU2RcViIEZF5cYswAAAABJRU5ErkJggg==">
+	<style>
+		html,
+		body,
+		#diagram {
+			height: 100%;
+			width: 100%;
+			margin: 0;
+			user-select: none;
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			font-size: 16px;
+			color: rgb(73, 80, 87);
+			outline: none; 
+		}
+
+		a {
+			color: #0d6efd;
+			text-decoration: underline;
+		}
+
+		@media only screen and (max-width: 700px) {
+			.links {
+				display: none;
+			}	
+		}
+
+		.dev-header {
+			background: #333;
+			color: white;
+			padding: 10px 20px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+		
+		.dev-info {
+			font-size: 14px;
+		}
+		
+		.test-buttons {
+			display: flex;
+			gap: 10px;
+		}
+		
+		.test-btn {
+			background: #007bff;
+			color: white;
+			border: none;
+			padding: 8px 16px;
+			border-radius: 4px;
+			cursor: pointer;
+			font-size: 12px;
+		}
+		
+		.test-btn:hover {
+			background: #0056b3;
+		}
+
+		/* Shape styles */
+		/* .hovertrack:hover { stroke: #ffc107; stroke-width: 3px; } */
+		.hovertrack.select { stroke: #28a745; stroke-width: 3px; }
+		.hovertrack.highlight { stroke: #dc3545; stroke-width: 3px; }
+
+		/* Connector styles */
+		[data-connect] { display: none; }
+
+		/* Show connectors when shape is selected or hovered */
+		.select [data-connect],
+		.highlight [data-connect],
+		.hover [data-connect] {
+			display: block;
+			fill: #007bff;
+			stroke: #fff;
+			stroke-width: 2px;
+		}
+
+		[data-connect].hover { stroke-width: 25px; }
+
+		/* Mobile styles */
+		@media (max-width: 768px) {
+			[data-connect] { stroke-width: 15px; }
+			[data-connect].hover { stroke-width: 70px; }
+		}
+
+		/* Shape-specific styles */
+		.shrect [data-key="main"] { fill: #1aaee5; }
+		.shtxt [data-key="main"] { fill: transparent; }
+		.shcircle [data-key="main"] { fill: #28a745; }
+		.shrhomb [data-key="main"] { fill: #1D809F; }
+		.shcontainer [data-key="main"] { fill: transparent; stroke: #1aaee5; }
+
+		/* Image component styles */
+		.shimage [data-key="main"] { 
+			fill: transparent; 
+			stroke: #dee2e6; 
+		}
+		
+		/* Color styles for image component borders */
+		.shimage.cl-teal [data-key="main"] { 
+			stroke: transparent; 
+		}
+		
+		.shimage.cl-blue [data-key="main"] { 
+			stroke: #007bff; 
+		}
+		
+		.shimage.cl-green [data-key="main"] { 
+			stroke: #28a745; 
+		}
+		
+		.shimage.cl-yellow [data-key="main"] { 
+			stroke: #ffc107; 
+		}
+		
+		.shimage.cl-red [data-key="main"] { 
+			stroke: #dc3545; 
+		}
+
+		/* Resize handle styles */
+		[data-resize-handle] {
+			fill: rgba(34, 197, 94, 0.8);
+			stroke: rgba(34, 197, 94, 1);
+			stroke-width: 2px;
+			cursor: nw-resize;
+			display: none;
+		}
+
+		.select [data-resize-handle] {
+			display: block;
+		}
+
+		[data-resize-handle]:hover {
+			fill: rgba(34, 197, 94, 1);
+			stroke-width: 3px;
+		}
+	</style>
+	<title>Dgrm - Development</title>
+</head>
+<body>
+	<div class="dev-header">
+		<div class="dev-info">
+			🚀 DgrmJS Development Mode | 
+			<span id="build-status">Ready</span>
+		</div>
+		<div class="test-buttons">
+			<button class="test-btn" onclick="testConnectors()">Test Connectors</button>
+			<button class="test-btn" onclick="clearCanvas()">Clear Canvas</button>
+		</div>
+	</div>
+	<ap-menu id="menu"></ap-menu>
+	<ap-menu-shape id="menu-shape"></ap-menu-shape>
+	<ap-history-buttons id="history-buttons"></ap-history-buttons>
+	<div id="tip" style="position: fixed; left: 50%; top: 30%; transform: translate(-50%, -30%); min-width: 290px;">
+		<svg viewBox="0 0 24 24" width="24" height="24">
+			<path fill="none" d="M0 0h24v24H0z" />
+			<path
+				d="M10 3h4a8 8 0 1 1 0 16v3.5c-5-2-12-5-12-11.5a8 8 0 0 1 8-8zm2 14h2a6 6 0 1 0 0-12h-4a6 6 0 0 0-6 6c0 3.61 2.462 5.966 8 8.48V17z"
+				fill="rgb(230,126,34)" />
+		</svg>Tip
+		<ul>
+			<li>drag diagram image here to open</li>
+			<li>to select multiple shapes use long press</li>
+		</ul>
+	</div>
+	<svg id="diagram" tabindex="0" style="touch-action: none; background-color: #fff; display:block; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; pointer-events: none;">
+		<style type="text/css">
+			text {
+				white-space: pre-wrap;
+				font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+				font-size: 16px;
+				color: rgb(73, 80, 87);
+			}
+
+			textarea {
+				text-align: center;
+				border: none;;
+				padding: 10px;
+				padding-top: 0.8em;
+				font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+				font-size: 16px;
+				background-color: transparent;
+				color: transparent;
+				outline: none;
+				overflow: hidden;
+				resize: none;
+				line-height: 1em;
+				caret-color: #fff;
+			}	
+
+			.select path[data-key="selected"],
+			.select .path-end,
+			.select [data-connect],
+			.highlight-e [data-key="end"] .path-end,
+			.highlight-s [data-key="start"] .path-end,
+			.hover [data-connect] {
+				display: unset;
+				opacity: 0.51;
+				stroke: rgb(108 187 247);
+				fill: rgb(108 187 247);
+			}
+			[data-connect].hover { stroke-width: 25px; }
+
+			.select path[data-key="selected"] { fill:none; }
+
+			.highlight [data-key="main"]{
+				paint-order: stroke;
+				stroke-width: 10px;
+				stroke: rgb(108 187 247 / 51%);
+			}
+			
+			.shpath [data-key="end"] .path,
+			.shpath [data-key="start"] .path { display: none;}
+			.shpath.arw-e [data-key="end"] .path,
+			.shpath.arw-s [data-key="start"] .path { display: unset;}
+			.shpath.dash [data-key="path"] { stroke-dasharray:5; }
+
+			@media (pointer: coarse) {
+				circle.path-end { r: 20px; }
+				.ative-elem {
+					stroke: rgb(108 187 247 / 51%);
+					stroke-width: 70px;
+				}
+	
+				[data-connect] { stroke-width: 15px; }
+				[data-connect].hover { stroke-width: 70px; }
+			}
+
+
+			/* rect, text shape */
+			.shrect.ta-1 text, .shtxt.ta-1 text { text-anchor: start; }
+			.shrect.ta-2 text, .shtxt.ta-2 text { text-anchor: middle; }
+			.shrect.ta-3 text, .shtxt.ta-3 text { text-anchor: end; }
+			.shrect.ta-1 textarea, .shtxt.ta-1 textarea { text-align: left; }
+			.shrect.ta-2 textarea, .shtxt.ta-2 textarea { text-align: center; }
+			.shrect.ta-3 textarea, .shtxt.ta-3 textarea { text-align: right; }
+			.shtxt textarea { caret-color: rgb(73, 80, 87); }
+			.shtxt text { fill:rgb(73, 80, 87); }
+			.shtxt [data-key="main"] { fill: transparent; stroke: transparent; }
+			.shtxt.select [data-key="main"], .shtxt.highlight [data-key="main"] { stroke: rgb(108 187 247 / 51%); stroke-width: 2px; }
+
+			/* rhomb shape */
+			.shrhomb.highlight [data-key="border"] { stroke-width: 28px; stroke: rgb(108 187 247 / 51%); }
+			.shrhomb.highlight [data-key="main"] { stroke-width:18px; stroke:#1D809F; }
+
+			/* shape settings styles */
+			.cl-red [data-key="main"] { fill: #E74C3C; } .cl-red .path { stroke: #E74C3C;}
+			.cl-orange [data-key="main"] { fill: #ff6600;} .cl-orange .path { stroke: #ff6600;}
+			.cl-green [data-key="main"] { fill: #19bc9b;} .cl-green .path { stroke: #19bc9b;}
+			.cl-blue [data-key="main"] { fill: #1aaee5;} .cl-blue .path { stroke: #1aaee5;}
+			.cl-dblue [data-key="main"] { fill: #1D809F;} .cl-dblue .path { stroke: #1D809F;}
+			.cl-dgray [data-key="main"] { fill: #495057;} .cl-dgray .path { stroke: #495057;}
+			.cl-purple [data-key="main"] { fill: #9b59b6;} .cl-purple .path { stroke: #9b59b6;}
+			.cl-pink [data-key="main"] { fill: #e91e63;} .cl-pink .path { stroke: #e91e63;}
+			.cl-teal [data-key="main"] { fill: transparent;} .cl-teal .path { stroke: transparent;}
+			.cl-yellow [data-key="main"] { fill: #f39c12;} .cl-yellow .path { stroke: #f39c12;}
+
+			.shtxt.cl-red [data-key="main"] { fill: transparent; } .shtxt.cl-red text { fill: #E74C3C; }
+			.shtxt.cl-orange [data-key="main"] { fill: transparent; } .shtxt.cl-orange text { fill: #ff6600; }
+			.shtxt.cl-green [data-key="main"] { fill: transparent; } .shtxt.cl-green text { fill: #19bc9b; }
+			.shtxt.cl-blue [data-key="main"] { fill: transparent; } .shtxt.cl-blue text { fill: #1aaee5; }
+			.shtxt.cl-dblue [data-key="main"] { fill: transparent; } .shtxt.cl-dblue text { fill: #1D809F; }
+			.shtxt.cl-dgray [data-key="main"] { fill: transparent; } .shtxt.cl-dgray text { fill: #495057; }
+			.shtxt.cl-purple [data-key="main"] { fill: transparent; } .shtxt.cl-purple text { fill: #9b59b6; }
+			.shtxt.cl-pink [data-key="main"] { fill: transparent; } .shtxt.cl-pink text { fill: #e91e63; }
+			.shtxt.cl-teal [data-key="main"] { fill: transparent; } .shtxt.cl-teal text { fill: transparent; }
+			.shtxt.cl-yellow [data-key="main"] { fill: transparent; } .shtxt.cl-yellow text { fill: #f39c12; }
+
+			.shrhomb.cl-red [data-key="main"] { stroke-width:18px; stroke:#E74C3C; }
+			.shrhomb.cl-orange [data-key="main"] { stroke-width:18px; stroke:#ff6600; }
+			.shrhomb.cl-green [data-key="main"] { stroke-width:18px; stroke:#19bc9b; }
+			.shrhomb.cl-blue [data-key="main"] { stroke-width:18px; stroke:#1aaee5; }
+			.shrhomb.cl-dblue [data-key="main"] { stroke-width:18px; stroke:#1D809F; }
+			.shrhomb.cl-dgray [data-key="main"] { stroke-width:18px; stroke:#495057; }
+			.shrhomb.cl-purple [data-key="main"] { stroke-width:18px; stroke:#9b59b6; }
+			.shrhomb.cl-pink [data-key="main"] { stroke-width:18px; stroke:#e91e63; }
+			.shrhomb.cl-teal [data-key="main"] { stroke-width:18px; stroke:transparent; }
+			.shrhomb.cl-yellow [data-key="main"] { stroke-width:18px; stroke:#f39c12; }
+
+			/* container shape */
+			.shcontainer.cl-red [data-key="main"], .shcontainer.cl-red circle { stroke: #E74C3C; fill: transparent !important; }
+			.shcontainer.cl-orange [data-key="main"], .shcontainer.cl-orange circle { stroke: #ff6600; fill: transparent !important; }
+			.shcontainer.cl-green [data-key="main"], .shcontainer.cl-green circle { stroke: #19bc9b; fill: transparent !important; }
+			.shcontainer.cl-blue [data-key="main"], .shcontainer.cl-blue circle { stroke: #1aaee5; fill: transparent !important; }
+			.shcontainer.cl-dblue [data-key="main"], .shcontainer.cl-dblue circle { stroke: #1D809F; fill: transparent !important; }
+			.shcontainer.cl-dgray [data-key="main"], .shcontainer.cl-dgray circle { stroke: #495057; fill: transparent !important; }
+			.shcontainer.cl-purple [data-key="main"], .shcontainer.cl-purple circle { stroke: #9b59b6; fill: transparent !important; }
+			.shcontainer.cl-pink [data-key="main"], .shcontainer.cl-pink circle { stroke: #e91e63; fill: transparent !important; }
+			.shcontainer.cl-teal [data-key="main"], .shcontainer.cl-teal circle { stroke: transparent; fill: transparent !important; }
+			.shcontainer.cl-yellow [data-key="main"], .shcontainer.cl-yellow circle { stroke: #f39c12; fill: transparent !important; }
+
+			/* image shape */
+			.shimage [data-key="main"] { cursor: pointer; }
+			.shimage.highlight [data-key="main"] { stroke-width: 4px; stroke: rgb(108 187 247 / 51%); }
+			.shimage [data-key="image"] { pointer-events: none; }
+			.shimage [data-key="placeholder"] { pointer-events: none; }
+			.shimage [data-key="text"] { pointer-events: none; }
+
+			/* image shape color styles - colors affect border only */
+			.shimage.cl-red [data-key="main"] { stroke: #E74C3C; }
+			.shimage.cl-orange [data-key="main"] { stroke: #ff6600; }
+			.shimage.cl-green [data-key="main"] { stroke: #19bc9b; }
+			.shimage.cl-blue [data-key="main"] { stroke: #1aaee5; }
+			.shimage.cl-dblue [data-key="main"] { stroke: #1D809F; }
+			.shimage.cl-dgray [data-key="main"] { stroke: #495057; }
+			.shimage.cl-purple [data-key="main"] { stroke: #9b59b6; }
+			.shimage.cl-pink [data-key="main"] { stroke: #e91e63; }
+			.shimage.cl-teal [data-key="main"] { stroke: transparent; }
+			.shimage.cl-yellow [data-key="main"] { stroke: #f39c12; }
+
+			/* Selection rectangle styles */
+			.selection-rect {
+				pointer-events: none;
+				animation: selection-pulse 1.5s ease-in-out infinite;
+			}
+
+			@keyframes selection-pulse {
+				0%, 100% { opacity: 0.8; }
+				50% { opacity: 0.4; }
+			}
+		</style>
+		<g id="canvas"></g>
+	</svg>
+	<script src="bundle.js"></script>
+	<script>
+		// Test connector functionality
+		function testConnectors() {
+			console.log('🔍 Testing connector functionality...');
+			
+			// Find all connectors on the page
+			const connectors = document.querySelectorAll('[data-connect]');
+			console.log(`Found ${connectors.length} connectors`);
+			
+			connectors.forEach((connector, index) => {
+				const direction = connector.getAttribute('data-connect');
+				const transform = connector.style.transform;
+				const parent = connector.closest('.hovertrack');
+				const shapeType = parent ? (parent.className.baseVal ? parent.className.baseVal.match(/sh\w+/)?.[0] : 'unknown') : 'unknown';
+				
+				console.log(`Connector ${index + 1}:`, {
+					direction,
+					transform,
+					shapeType,
+					parentClasses: parent ? parent.className.baseVal : 'no parent',
+					element: connector
+				});
+				
+				// Add click listener to test connector clicking
+				connector.addEventListener('click', function(e) {
+					console.log(`🎯 Connector ${index + 1} clicked!`, {
+						direction: direction,
+						event: e,
+						target: e.target
+					});
+					e.stopPropagation();
+				});
+			});
+			
+			// Also test resize handles
+			const resizeHandles = document.querySelectorAll('[data-resize-handle]');
+			console.log(`Found ${resizeHandles.length} resize handles`);
+			resizeHandles.forEach((handle, index) => {
+				console.log(`Resize handle ${index + 1}:`, {
+					transform: handle.style.transform,
+					element: handle
+				});
+			});
+		}
+		
+		function clearCanvas() {
+			const shapes = document.querySelectorAll('.hovertrack');
+			shapes.forEach(shape => {
+				if (shape.remove) {
+					shape.remove();
+				}
+			});
+			console.log('Canvas cleared');
+		}
+		
+		// Monitor build status
+		let lastModified = Date.now();
+		setInterval(() => {
+			fetch('/bundle.js', { method: 'HEAD' })
+				.then(response => {
+					const modified = new Date(response.headers.get('last-modified')).getTime();
+					if (modified > lastModified) {
+						lastModified = modified;
+						document.getElementById('build-status').textContent = 'Updated - Refresh to see changes';
+						document.getElementById('build-status').style.color = '#ffc107';
+					}
+				})
+				.catch(() => {});
+		}, 2000);
+	</script>
+</body>
+</html> 

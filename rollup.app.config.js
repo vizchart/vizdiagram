@@ -9,6 +9,10 @@ export default {
 		format: 'iife',
 		plugins: [
 			terser({
+				compress: {
+					drop_console: true,
+					drop_debugger: true
+				},
 				mangle: {
 					keep_classnames: false,
 					keep_fnames: false,

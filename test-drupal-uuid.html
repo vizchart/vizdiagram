@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DgrmJS Drupal UUID 测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .test-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .test-section h3 {
+            color: #495057;
+            margin-top: 0;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 10px;
+        }
+        .test-link {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 5px 10px 5px 0;
+            transition: background-color 0.3s;
+        }
+        .test-link:hover {
+            background: #0056b3;
+            color: white;
+        }
+        .test-link.success {
+            background: #28a745;
+        }
+        .test-link.success:hover {
+            background: #218838;
+        }
+        .description {
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .code {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .input-group {
+            margin: 15px 0;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn.success {
+            background: #28a745;
+        }
+        .btn.success:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌐 DgrmJS Drupal UUID 测试</h1>
+        <p>测试通过UUID加载Drupal节点并保存更新的功能</p>
+    </div>
+
+    <div class="instructions">
+        <h3>📋 测试步骤</h3>
+        <ol>
+            <li>确保开发服务器正在运行：<code>npm run dev:simple</code></li>
+            <li>确保已登录Drupal系统</li>
+            <li>输入一个有效的AIGC节点UUID</li>
+            <li>点击"加载图表"测试加载功能</li>
+            <li>修改图表后点击"Save to Cloud"测试更新功能</li>
+            <li>检查控制台输出确认是更新而不是创建新节点</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h3>🔧 UUID 测试工具</h3>
+        
+        <div class="input-group">
+            <label for="uuid-input">AIGC节点UUID:</label>
+            <input type="text" id="uuid-input" placeholder="例如: 12345678-1234-1234-1234-123456789abc" 
+                   value="12345678-1234-1234-1234-123456789abc">
+        </div>
+        
+        <button class="btn success" onclick="loadDiagramByUUID()">
+            🔄 加载图表
+        </button>
+        
+        <button class="btn" onclick="openNewDiagram()">
+            📄 打开新图表（对比测试）
+        </button>
+        
+        <div class="description">
+            输入真实的AIGC节点UUID，然后点击"加载图表"进行测试
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>📊 预期行为</h3>
+        
+        <h4>✅ 加载阶段（控制台输出）</h4>
+        <div class="code">
+🔄 Initializing diagram from URL: type=drupal, uuid=xxxxx
+🌐 Loading diagram from Drupal by UUID: xxxxx
+🔍 Fetching AIGC node by UUID: xxxxx
+✅ AIGC node fetched successfully: {...}
+📊 Diagram data extracted from content_data: {...}
+✅ Successfully loaded Drupal diagram "图表名称" with X elements
+📋 Current diagram set: 图表名称 (UUID: xxxxx)
+        </div>
+        
+        <h4>✅ 保存阶段（控制台输出）</h4>
+        <div class="code">
+☁️ Starting diagram save to cloud process...
+💾 Save decision: isNew=false, nodeId=xxxxx, action=UPDATE
+📝 Updating existing AIGC node (UUID: xxxxx)...
+📝 Updating AIGC content node with UUID: xxxxx...
+🔗 Update URL: /jsonapi/node/aigc/xxxxx
+📦 Request payload: {...}
+✅ AIGC node updated successfully: {...}
+🎉 Diagram updated successfully!
+        </div>
+        
+        <h4>❌ 错误情况</h4>
+        <div class="code">
+# 加载错误
+❌ Failed to fetch Drupal node: 404 Not Found
+❌ No AIGC node found with UUID: xxxxx
+❌ No diagram data found in Drupal node content_data field
+
+# 保存错误
+❌ Node update failed: 404 Not Found - {...}
+❌ Node update failed: status=404, url=/jsonapi/node/aigc/xxxxx
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>🧪 测试用例</h3>
+        
+        <h4>有效UUID测试</h4>
+        <p>使用真实的AIGC节点UUID进行测试：</p>
+        <ul>
+            <li>加载应该成功，显示图表内容</li>
+            <li>修改图表后保存应该更新原节点</li>
+            <li>控制台应该显示"UPDATE"而不是"CREATE"</li>
+        </ul>
+        
+        <h4>无效UUID测试</h4>
+        <p>使用不存在的UUID进行测试：</p>
+        <ul>
+            <li>应该显示404错误</li>
+            <li>不应该加载任何图表内容</li>
+        </ul>
+        
+        <h4>对比测试</h4>
+        <p>打开新图表进行对比：</p>
+        <ul>
+            <li>新图表保存应该创建新节点</li>
+            <li>控制台应该显示"CREATE"</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h3>🔍 调试信息</h3>
+        <p>打开浏览器开发者工具（F12）查看详细的调试信息：</p>
+        <ul>
+            <li><strong>Console标签</strong>：查看加载和保存过程的日志</li>
+            <li><strong>Network标签</strong>：查看API请求和响应</li>
+            <li><strong>Application标签</strong>：查看Cookie和存储信息</li>
+        </ul>
+    </div>
+
+    <script>
+        function loadDiagramByUUID() {
+            const uuid = document.getElementById('uuid-input').value.trim();
+            
+            if (!uuid) {
+                alert('请输入UUID');
+                return;
+            }
+            
+            // 验证UUID格式（基本检查）
+            const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+            if (!uuidPattern.test(uuid)) {
+                const proceed = confirm('UUID格式可能不正确，是否继续测试？\n\n正确格式：12345678-1234-1234-1234-123456789abc');
+                if (!proceed) return;
+            }
+            
+            const url = `http://localhost:3001/index.dev.html?type=drupal&uuid=${uuid}`;
+            console.log(`🚀 Opening diagram with UUID: ${uuid}`);
+            console.log(`🔗 URL: ${url}`);
+            
+            window.open(url, '_blank');
+        }
+        
+        function openNewDiagram() {
+            const url = 'http://localhost:3001/index.dev.html';
+            console.log('🆕 Opening new diagram for comparison');
+            console.log(`🔗 URL: ${url}`);
+            
+            window.open(url, '_blank');
+        }
+        
+        // 页面加载时检查服务器状态
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('http://localhost:3001/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ 服务器状态正常:', data);
+                } else {
+                    console.warn('⚠️ 服务器响应异常:', response.status);
+                }
+            } catch (error) {
+                console.error('❌ 无法连接到开发服务器:', error);
+                alert('❌ 无法连接到开发服务器！\n\n请确保已启动开发服务器：npm run dev:simple');
+            }
+        });
+        
+        // 自动填充示例UUID（如果有的话）
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const exampleUuid = urlParams.get('uuid');
+            if (exampleUuid) {
+                document.getElementById('uuid-input').value = exampleUuid;
+            }
+        });
+    </script>
+</body>
+</html> 

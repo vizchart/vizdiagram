@@ -1,89 +1,76 @@
-# [Dgrm.net](https://dgrm.net "Flowchart editor") - flowchart editor
+# Diagram Builder
 
-**Flowcharts**    
+This Diagram Builder is forked from [DgrmJS](https://github.com/AlexeyBoiko/DgrmJS) and extends its functionality with several new features and improvements.
 
-<img src="https://github.com/AlexeyBoiko/DgrmJS/assets/29090032/4cb40f6c-2200-4031-a7e6-50c8f83da2c0" alt="Flowchart editor live collaboration" width="600"/>
+## New Features
 
-[Try it yourself](https://app.dgrm.net/?k=20240339e781c7)
+### New Components
 
-<br />
+#### Image
+- Images under 100KB are embedded into JSON (base64 encoded)
+- Images over 100KB require upload to a cloud server (login required)
+- Supports various image formats (e.g., PNG, JPG, GIF)
 
-**Sequence Diagrams**
+#### Rectangle Group
+- Draw empty rectangles to group elements
+- Helps in organizing and structuring your diagrams
 
-<img src="https://github.com/AlexeyBoiko/DgrmJS/blob/doc/img/sequence-diagrams.gif" alt="sequence diagram editor" width="600"/>
+### Undo/Redo Functionality
+- Implement undo and redo operations for all actions
+- Enhances user experience by allowing easy correction of mistakes
 
-[Try it yourself](https://app.dgrm.net/?k=2023104981a801)
+### Layer Management
+- Move elements up or down in the canvas
+- Resolve overlapping issues by adjusting element layers
+- Ensures accessibility to all elements, even when overlapped
 
-<br />
+### Metadata Management
+- Export diagram metadata for backup or sharing
+- Import metadata to recreate diagrams
+- Supports collaboration and version control
 
-**Activity Diagrams**
+### Delete Keyboard Support
+- Delete shapes by press delete key 
 
-<img src="https://github.com/AlexeyBoiko/DgrmJS/blob/doc/img/activity-diagram.png" alt="activity diagram editor" width="600"/>
+### Initialization Options
+1. JSON: Load diagram from a JSON file
+   `type=json&http://your-json-file.json`
+2. Image: Load an image file as the diagram background
+   `type=file&http://your-image-file.png`
+3. Drupal Integration: Load diagram data from a Drupal server using UUID
+   `type=drupal&uuid=xxx`
+4. New init option for scale
+   `type=drupal&uuid=xxx&scale=0.5`
 
-
-<br />
-
-**Mind map**
-
-<img src="https://user-images.githubusercontent.com/29090032/235704955-8b791599-d6f4-4310-a304-ec0b486dc963.png" alt="mind map" width="600"/>
-
-[Try it yourself](https://app.dgrm.net/?k=20240326021cdd)
-
-<br />
-
-**Format scheme**
-
-<img src="https://github.com/AlexeyBoiko/DgrmJS/assets/29090032/05a39938-45b4-4037-8587-52ecc2ad31ac.png" alt="format scheme" width="600"/>
-
-[Try it yourself](https://app.dgrm.net/?k=202403808ba09f)
-
-<br />
-
-**Highlights**
-- Works on desktop and mobile
-- Has no dependency
-- Pure JavaScript
-
-**Please note**  
-Source code in this repo is different from https://dgrm.net/.  
-https://dgrm.net/ has pro features like "undo/redo".
+### Customizable Styles
+- Apply custom styles to diagram elements
+- Customize colors, line styles, and fonts
 
 
+### URL Parameters
+DgrmJS Supports initialized via different query params：
 
-## Announcements / Articles
-[x.com](https://x.com/boyko_tech) | [telegram](https://t.me/dgrm_net)
+```bash
+# scale
+http://localhost:3001/index.dev.html?scale=0.5
 
-[Announcement / Now the exported images files size is 3 times less](https://x.com/Boyko_tech/status/1904559602047316086)  
-[Announcement / Now there are tables](https://dgrm.net/en/database-design.html)  
-[Announcement / DGRM Flowchart editor are now in Microsoft AppSource store](https://appsource.microsoft.com/en-us/product/web-apps/boykotech.flowchart-editor-dgrm)  
-[Announcement / Team Subsriptions](https://alexey-boyko.medium.com/diagramming-tool-dgrm-net-team-subsriptions-8e6436c05135)  
-[Announcement / Teamwork](https://alexey-boyko.medium.com/flowchart-editor-dgrm-net-teamwork-72db958dd495)  
-[Announcement / Recent](https://alexey-boyko.medium.com/flowchart-editor-dgrm-net-recent-38b2053f82be)  
-[Announcement / ChatGPT plagin](https://alexey-boyko.medium.com/flowchart-editor-dgrm-net-chatgpt-plagin-6190033d6b0b) ([RU article](https://vc.ru/tribuna/1164003-mindmap-za-10-sekund-nayden-samyy-bystryy-sposob-sdat-rabotu-zakazchiku))  
-[Announcement / Folders](https://alexey-boyko.medium.com/flowchart-editor-http-dgrm-net-folders-3642d4cbccdf)  
-[UI. Nuances of marker implementation in the DGRM.net flowchart editor](https://alexey-boyko.medium.com/ui-nuances-of-marker-implementation-in-the-dgrm-net-flowchart-editor-20da122bbfe0)  
-[Announcement / Marker](https://alexey-boyko.medium.com/flowchart-editor-dgrm-net-marker-f20e76443bed)  
-[WebRTC. How to establish a p2p connection between browsers](https://alexey-boyko.medium.com/webrtc-how-to-establish-a-p2p-connection-between-browsers-3315052bf95d)  
-[Intro video 50 sec ru](https://youtube.com/shorts/ktODLSnNWrY)  
-[Announcement / Images](https://alexey-boyko.medium.com/flowchart-editor-http-dgrm-net-images-1da8b0d9666a)  
-[Announcement / Rights for schemes](https://alexey-boyko.medium.com/flowchart-editor-dgrm-net-rights-for-schemes-64a8e5e1659f)  
-[Announcement / DGRM cloud](https://alexey-boyko.medium.com/flowchart-editor-dgrm-net-dgrm-cloud-2188f820a948)  
-[Announcement / Quick save](https://alexey-boyko.medium.com/flowchart-editor-dgrm-net-quick-save-4ee80cd9c4ba)  
-[JavaScript. WebRTC. Connecting browsers directly without a server, peer-to-peer](https://itnext.io/javascript-webrtc-connecting-browsers-directly-without-a-server-peer-to-peer-2e2de847849a)  
-[Announcement / Live collaboration](https://dev.to/alexboyko/flowchart-editor-dgrmnet-announcement-live-collaboration-eem)  
-[Announcement / Select with Shift key](https://alexey-boyko.medium.com/flowchart-editor-dgrm-net-announcement-select-with-shift-key-439f559fa406)  
-[UI. The interface should not be distracting](https://alexey-boyko.medium.com/ui-the-interface-should-not-be-distracting-75457848bceb)  
-[Announcement / Improved mobile support](https://alexey-boyko.medium.com/diagram-editor-dgrm-net-announcement-improved-mobile-support-180a276c461f)  
-[Announcement / Action history](https://alexey-boyko.medium.com/diagram-editor-dgrm-net-announcement-action-history-4aa103c468c4)  
-[Announcement / Header, bold, forward / backward](https://alexey-boyko.medium.com/diagram-editor-dgrm-net-announcement-header-bold-forward-backward-5c5627a46b15)  
-[Announcement / Stroke](https://alexey-boyko.medium.com/diagramm-editor-dgrm-net-announcement-stroke-1a9d8e0d93c2)  
-[Announcement / Resize](https://alexey-boyko.medium.com/flowchart-editor-dgrm-net-announcement-resize-ee6b0bd33382)  
-[Announcement / Hotkeys](https://alexey-boyko.medium.com/flowchart-editor-dgrm-net-announcement-hotkeys-e312d0e613e3)  
-[Announcement / Copy function](https://itnext.io/flowchart-editor-dgrm-net-announcement-copy-function-819f883053bd)  
-[Announcement / Sequence diagrams support](https://alexey-boyko.medium.com/flowchart-editor-dgrm-net-announcement-sequence-diagrams-support-dc62b9a3e095)  
-[Announcement / I halved the source code](https://itnext.io/flowchart-editor-dgrm-net-announcement-i-halved-the-source-code-e9d94822cd8a)  
-[JavaScript SVG diagram editor 6.5 times smaller than Bootstrap](https://alexey-boyko.medium.com/javascript-svg-diagram-editor-which-weighs-6-5-less-than-bootstrap-open-source-library-b753feaaf835 "JavaScript SVG diagram editor 6.5 times smaller than Bootstrap")  
-[JavaScript diagram editor that renders diagrams from PNG images (open source)](https://medium.com/codex/javascript-diagram-editor-that-renders-diagrams-from-png-images-open-source-d1de0f053088 "JavaScript diagram editor that renders diagrams from PNG images (open source)")  
-[JavaScript text editor for SVG](https://alexey-boyko.medium.com/javascript-text-editor-for-svg-6881f670d432)  
-[Flowchart editor UI](https://alexey-boyko.medium.com/flowchart-editor-ui-a8face0729d0)  
-[JavaScript: Zoom like in maps for SVG/HTML](https://alexey-boyko.medium.com/javascript-zoom-like-in-maps-for-svg-html-89c0df016d8d)
+# loading by json
+http://localhost:3001/index.dev.html?type=json&file=/test-diagram.json
+
+# loanding by json and scale
+http://localhost:3001/index.dev.html?type=json&file=/test-diagram.json&scale=1.5
+
+# Loading from drupal by uuid
+http://localhost:3001/index.dev.html?type=drupal&uuid=your-uuid&scale=2.0
+```
+
+PS: scale, ` 0.1 - 4.0 (10% - 400%)
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](link-to-contributing-guide) for more details.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](link-to-license) file for details.
+

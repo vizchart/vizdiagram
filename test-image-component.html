@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片组件测试 - DgrmJS</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            background: #f8f9fa;
+        }
+        
+        .test-section h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        
+        .instructions {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .instructions h4 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        
+        .step {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            border-left: 3px solid #28a745;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .btn.success {
+            background: #28a745;
+        }
+        
+        .btn.success:hover {
+            background: #1e7e34;
+        }
+        
+        .code {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ 图片组件功能测试</h1>
+        
+        <div class="instructions">
+            <h4>📋 测试说明</h4>
+            <p>本页面用于测试新增的图片组件功能，包括拖拽创建和双击上传功能。</p>
+        </div>
+
+        <div class="test-section">
+            <h3>🎯 测试步骤</h3>
+            
+            <div class="step">
+                <strong>步骤 1:</strong> 打开DgrmJS图表编辑器
+            </div>
+            
+            <div class="step">
+                <strong>步骤 2:</strong> 在左侧工具栏中找到新的图片组件按钮（虚线方框图标）
+            </div>
+            
+            <div class="step">
+                <strong>步骤 3:</strong> 拖拽图片组件到画布上
+            </div>
+            
+            <div class="step">
+                <strong>步骤 4:</strong> 双击图片组件，应该弹出文件选择对话框
+            </div>
+            
+            <div class="step">
+                <strong>步骤 5:</strong> 选择一张图片文件进行上传测试
+            </div>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ 注意事项：</strong>
+            <ul>
+                <li>图片上传功能需要先保存图表到Drupal，才能上传图片到ref_images字段</li>
+                <li>如果图表尚未保存，双击时会提示先保存图表</li>
+                <li>上传成功后，图片会显示在组件中，边框变为绿色实线</li>
+                <li>图片会被上传到当前AIGC节点的ref_images字段中</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>🚀 快速测试</h3>
+            
+            <button class="btn success" onclick="openDiagramEditor()">
+                📊 打开图表编辑器
+            </button>
+            
+            <button class="btn" onclick="openWithExistingDiagram()">
+                📄 打开现有图表（用于测试上传）
+            </button>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 预期行为</h3>
+            
+            <h4>✅ 组件创建</h4>
+            <div class="code">
+- 工具栏显示图片组件按钮（虚线方框 + 图片图标）
+- 拖拽到画布后显示虚线边框的占位符
+- 显示"双击上传图片"提示文字
+- 包含图片占位符图标（山和太阳）
+            </div>
+            
+            <h4>✅ 双击上传（新图表）</h4>
+            <div class="code">
+- 双击组件
+- 弹出提示："请先保存图表，然后才能上传图片到ref_images字段"
+- 用户需要先通过菜单保存图表
+            </div>
+            
+            <h4>✅ 双击上传（已保存图表）</h4>
+            <div class="code">
+- 双击组件
+- 弹出文件选择对话框
+- 选择图片文件
+- 显示"上传中..."状态
+- 上传成功后：
+  * 图片显示在组件中
+  * 边框变为绿色实线
+  * 隐藏占位符和提示文字
+  * 控制台显示成功日志
+            </div>
+            
+            <h4>❌ 错误处理</h4>
+            <div class="code">
+- 网络错误：显示上传失败提示
+- 认证失败：提示用户登录
+- 文件格式错误：显示格式不支持提示
+- 服务器错误：显示具体错误信息
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🛠️ 技术实现</h3>
+            
+            <h4>组件特性</h4>
+            <ul>
+                <li><strong>类型ID:</strong> 6</li>
+                <li><strong>默认尺寸:</strong> 120x120 像素</li>
+                <li><strong>连接点:</strong> 上下左右四个方向</li>
+                <li><strong>可调整大小:</strong> 支持</li>
+                <li><strong>图片适配:</strong> 保持比例，居中裁剪</li>
+            </ul>
+            
+            <h4>上传流程</h4>
+            <ol>
+                <li>检查当前图表是否已保存（有nodeId）</li>
+                <li>调用 <code>drupalAPI.addImageToRefImagesField(file, nodeUuid)</code></li>
+                <li>上传文件到 <code>/jsonapi/node/aigc/ref_images</code></li>
+                <li>获取现有ref_images值</li>
+                <li>更新节点，添加新文件ID到ref_images数组</li>
+                <li>本地显示图片预览</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function openDiagramEditor() {
+            const url = 'http://localhost:3001/index.dev.html';
+            console.log('🚀 Opening diagram editor for image component testing');
+            console.log(`🔗 URL: ${url}`);
+            
+            window.open(url, '_blank');
+        }
+        
+        function openWithExistingDiagram() {
+            // 这里可以放一个已知的UUID用于测试
+            const testUuid = '12345678-1234-1234-1234-123456789abc';
+            const url = `http://localhost:3001/index.dev.html?type=drupal&uuid=${testUuid}`;
+            console.log('🚀 Opening existing diagram for upload testing');
+            console.log(`🔗 URL: ${url}`);
+            
+            window.open(url, '_blank');
+        }
+        
+        // 页面加载时检查服务器状态
+        window.addEventListener('load', () => {
+            console.log('📋 Image component test page loaded');
+            console.log('🔧 Ready to test image component functionality');
+        });
+    </script>
+</body>
+</html> 

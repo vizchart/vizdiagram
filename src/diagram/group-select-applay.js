@@ -71,7 +71,7 @@ const highlightSClass = 'highlight-s';
 const highlightEClass = 'highlight-e';
 const highlightClass = 'highlight';
 
-/** wait long press and draw selected rectangle
+/** wait long press and draw selected rectangle, or right-click drag
  * @param {CanvasElement} canvas
  */
 export function groupSelectApplay(canvas) {
@@ -81,6 +81,8 @@ export function groupSelectApplay(canvas) {
 	/** @type {SVGCircleElement} */ let startCircle;
 	/** @type {SVGRectElement} */ let selectRect;
 	/** @type {Point} */ let selectRectPos;
+	let isRightClickDrag = false;
+	let hasMovedDuringRightClick = false;
 
 	/** @param {PointerEvent} evt */
 	function onMove(evt) {
@@ -88,6 +90,11 @@ export function groupSelectApplay(canvas) {
 		evt[ProcessedSmbl] = true;
 
 		if (startCircle) { startCircle.remove(); startCircle = null; }
+
+		// Track if we've moved during right-click to prevent context menu
+		if (isRightClickDrag) {
+			hasMovedDuringRightClick = true;
+		}
 
 		// draw rect
 		const x = evt.clientX - selectStart.x;
@@ -115,41 +122,95 @@ export function groupSelectApplay(canvas) {
 				inRect);
 		}
 
-		reset();
+		// Small delay to ensure group selection is fully processed before reset
+		setTimeout(() => {
+			reset();
+		}, 10);
 	}
 
 	function reset() {
 		clearTimeout(timer); timer = null;
 		startCircle?.remove(); startCircle = null;
 		selectRect?.remove(); selectRect = null;
+		
+		// Reset right-click flags after a delay to prevent context menu
+		if (isRightClickDrag) {
+			setTimeout(() => {
+				isRightClickDrag = false;
+				hasMovedDuringRightClick = false;
+			}, 100);
+		} else {
+			isRightClickDrag = false;
+			hasMovedDuringRightClick = false;
+		}
 
 		listenDel(svg, 'pointermove', onMove);
 		listenDel(svg, 'wheel', reset);
 		listenDel(svg, 'pointerup', onUp);
 	}
 
+	/** @param {Event} evt */
+	function onContextMenu(evt) {
+		// Prevent context menu when doing right-click drag selection or if we moved during right-click
+		if (isRightClickDrag || hasMovedDuringRightClick) {
+			evt.preventDefault();
+			evt.stopPropagation();
+		}
+	}
+
+	/** @param {PointerEvent} evt */
+	function startSelection(evt) {
+		canvasSelectionClear(canvas);
+
+		selectStart = { x: evt.clientX, y: evt.clientY };
+		selectRectPos = { x: evt.clientX, y: evt.clientY };
+		selectRect = svgEl('rect');
+		classAdd(selectRect, 'selection-rect');
+		
+		// Different visual style for right-click vs long press
+		if (isRightClickDrag) {
+			selectRect.style.cssText = 'rx:8px; fill: rgb(108 187 247 / 15%); stroke: rgb(108 187 247); stroke-width: 2; stroke-dasharray: 8,4;';
+		} else {
+			selectRect.style.cssText = 'rx:10px; fill: rgb(108 187 247 / 20%); stroke: rgb(108 187 247); stroke-width: 1; stroke-dasharray: 5,5;';
+		}
+		
+		positionSet(selectRect, selectRectPos);
+		svg.append(selectRect);
+	}
+
+	// Add global context menu prevention
+	listen(svg, 'contextmenu', onContextMenu);
+
 	listen(svg, 'pointerdown', /** @param {PointerEvent} evt */ evt => {
 		if (evt[ProcessedSmbl] || !evt.isPrimary) { reset(); return; }
 
+		// Check for right-click (button 2)
+		if (evt.button === 2) {
+			evt.preventDefault(); // Prevent default right-click behavior immediately
+			isRightClickDrag = true;
+			hasMovedDuringRightClick = false;
+			startSelection(evt);
+			
+			listen(svg, 'pointermove', onMove);
+			listen(svg, 'wheel', reset, true);
+			listen(svg, 'pointerup', onUp, true);
+			return;
+		}
+
+		// Original left-click long press behavior
 		listen(svg, 'pointermove', onMove);
 		listen(svg, 'wheel', reset, true);
 		listen(svg, 'pointerup', onUp, true);
 
 		timer = setTimeout(_ => {
-			canvasSelectionClear(canvas);
+			startSelection(evt);
 
+			// Add visual indicator for long press
 			startCircle = svgEl('circle');
 			classAdd(startCircle, 'ative-elem');
 			startCircle.style.cssText = 'r:10px; fill: rgb(108 187 247 / 51%)';
 			positionSet(startCircle, { x: evt.clientX, y: evt.clientY });
 			svg.append(startCircle);
-
-			selectStart = { x: evt.clientX, y: evt.clientY };
-			selectRectPos = { x: evt.clientX, y: evt.clientY };
-			selectRect = svgEl('rect');
-			selectRect.style.cssText = 'rx:10px; fill: rgb(108 187 247 / 51%)';
-			positionSet(selectRect, selectRectPos);
-			svg.append(selectRect);
 		}, 500);
 	});
 }
@@ -288,9 +349,33 @@ function groupEvtProc(canvas, selected) {
 						arrPop(selected.shapes, shapeEl => shapeEl[ShapeSmbl].del());
 						arrPop(selected.pathEndsPaths, pathEl => pathEl[PathSmbl].del());
 						dispose();
+						// Trigger history save after deletion
+						setTimeout(() => {
+							document.dispatchEvent(new CustomEvent('diagramchange'));
+						}, 100);
 						break;
 					case 'copy': {
 						copyAndPast(canvas, elemsToCopyGet(selected)); // will call dispose
+						// Trigger history save after copy/paste
+						setTimeout(() => {
+							document.dispatchEvent(new CustomEvent('diagramchange'));
+						}, 100);
+						break;
+					}
+					case 'layer-up': {
+						moveGroupLayerUp(canvas, selected);
+						// Trigger history save after layer change
+						setTimeout(() => {
+							document.dispatchEvent(new CustomEvent('diagramchange'));
+						}, 100);
+						break;
+					}
+					case 'layer-down': {
+						moveGroupLayerDown(canvas, selected);
+						// Trigger history save after layer change
+						setTimeout(() => {
+							document.dispatchEvent(new CustomEvent('diagramchange'));
+						}, 100);
 						break;
 					}
 				}
@@ -298,6 +383,10 @@ function groupEvtProc(canvas, selected) {
 		} else {
 			// move end
 			drawSelection(point => placeToCell(point, canvas[CanvasSmbl].data.cell));
+			// Trigger history save after group move
+			setTimeout(() => {
+				document.dispatchEvent(new CustomEvent('diagramchange'));
+			}, 100);
 		}
 
 		dispose(true);
@@ -365,6 +454,58 @@ function elemsToCopyGet(selected) {
 function pathUnhighlight(pathEl) {
 	classDel(pathEl, highlightSClass);
 	classDel(pathEl, highlightEClass);
+}
+
+/**
+ * 将群组中的所有元素层级上移一层
+ * @param {CanvasElement} canvas
+ * @param {Selected} selected
+ */
+function moveGroupLayerUp(canvas, selected) {
+	// 获取所有选中的元素
+	const allElements = [...(selected.shapes || []), ...(selected.pathEndsPaths || [])];
+	
+	// 按照在DOM中的顺序排序（从后往前），这样移动时不会影响其他元素的位置
+	allElements.sort((a, b) => {
+		const aIndex = Array.from(canvas.children).indexOf(a);
+		const bIndex = Array.from(canvas.children).indexOf(b);
+		return bIndex - aIndex; // 倒序
+	});
+	
+	// 对每个元素执行上移操作
+	allElements.forEach(element => {
+		const nextSibling = element.nextElementSibling;
+		if (nextSibling) {
+			// 在SVG中，后面的元素显示在前面，所以要上移需要往后移动
+			canvas.insertBefore(nextSibling, element);
+		}
+	});
+}
+
+/**
+ * 将群组中的所有元素层级下移一层
+ * @param {CanvasElement} canvas
+ * @param {Selected} selected
+ */
+function moveGroupLayerDown(canvas, selected) {
+	// 获取所有选中的元素
+	const allElements = [...(selected.shapes || []), ...(selected.pathEndsPaths || [])];
+	
+	// 按照在DOM中的顺序排序（从前往后），这样移动时不会影响其他元素的位置
+	allElements.sort((a, b) => {
+		const aIndex = Array.from(canvas.children).indexOf(a);
+		const bIndex = Array.from(canvas.children).indexOf(b);
+		return aIndex - bIndex; // 正序
+	});
+	
+	// 对每个元素执行下移操作
+	allElements.forEach(element => {
+		const previousSibling = element.previousElementSibling;
+		if (previousSibling) {
+			// 在SVG中，前面的元素显示在后面，所以要下移需要往前移动
+			canvas.insertBefore(element, previousSibling);
+		}
+	});
 }
 
 /**

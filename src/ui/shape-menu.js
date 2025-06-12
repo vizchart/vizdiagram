@@ -65,6 +65,18 @@ export class ShapeMenu extends HTMLElement {
 					<svg class="stroke" data-cmd="shapeAdd" data-cmd-arg="1" viewBox="0 0 24 24" width="24" height="24"><circle r="9" cx="12" cy="12"></circle></svg>
 					<svg class="stroke" data-cmd="shapeAdd" data-cmd-arg="4" viewBox="0 0 24 24" width="24" height="24"><path d="M2 12 L12 2 L22 12 L12 22 Z" stroke-linejoin="round"></path></svg>
 					<svg class="stroke" data-cmd="shapeAdd" data-cmd-arg="2" viewBox="0 0 24 24" width="24" height="24"><rect x="2" y="4" width="20" height="16" rx="3" ry="3"></rect></svg>
+					<svg class="stroke" data-cmd="shapeAdd" data-cmd-arg="5" viewBox="0 0 24 24" width="24" height="24">
+						<rect x="4" y="6" width="16" height="12" rx="2" ry="2"></rect>
+						<circle cx="4" cy="6" r="1.5" fill="transparent"></circle>
+						<circle cx="20" cy="6" r="1.5" fill="transparent"></circle>
+						<circle cx="4" cy="18" r="1.5" fill="transparent"></circle>
+						<circle cx="20" cy="18" r="1.5" fill="transparent"></circle>
+					</svg>
+					<svg class="stroke" data-cmd="shapeAdd" data-cmd-arg="6" viewBox="0 0 24 24" width="24" height="24">
+						<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+						<circle cx="8.5" cy="8.5" r="1.5" fill="transparent"></circle>
+						<path d="M21 15l-5-5L5 21l5-5" stroke-linejoin="round"></path>
+					</svg>
 					<svg data-cmd="shapeAdd" data-cmd-arg="0" viewBox="0 0 24 24" width="24" height="24"><path fill="none" d="M0 0h24v24H0z"/><path d="M13 8v8a3 3 0 0 1-3 3H7.83a3.001 3.001 0 1 1 0-2H10a1 1 0 0 0 1-1V8a3 3 0 0 1 3-3h3V2l5 4-5 4V7h-3a1 1 0 0 0-1 1z" fill="rgba(52,71,103,1)"/></svg>
 					<svg data-cmd="shapeAdd" data-cmd-arg="3" viewBox="0 0 24 24" width="24" height="24"><path fill="none" d="M0 0h24v24H0z"/><path d="M13 6v15h-2V6H5V4h14v2z" fill="rgba(52,71,103,1)"/></svg>
 				</div>
@@ -144,6 +156,15 @@ export class ShapeMenu extends HTMLElement {
 				s: { data: { dir: 'right', position: { x: evtPoint.x - 24, y: evtPoint.y } } },
 				e: { data: { dir: 'right', position: { x: evtPoint.x + 24, y: evtPoint.y } } }
 			})
+			: this._pressedShapeTemplKey === 6
+			? {
+				type: this._pressedShapeTemplKey,
+				position: {
+					x: evtPoint.x,
+					y: evtPoint.y
+				},
+				title: ''
+			}
 			: {
 				type: this._pressedShapeTemplKey,
 				position: {

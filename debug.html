@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Image Component</title>
+</head>
+<body>
+    <h1>Debug Image Component</h1>
+    <button onclick="testImageComponent()">Test Image Component</button>
+    <div id="result"></div>
+    
+    <script type="module">
+        window.testImageComponent = async function() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                // Test image component import
+                const { image } = await import('./src/shapes/image.js');
+                console.log('Image component:', image);
+                
+                // Test shape type map
+                const { shapeTypeMap } = await import('./src/shapes/shape-type-map.js');
+                const mockCanvas = { ownerSVGElement: document.createElementNS('http://www.w3.org/2000/svg', 'svg') };
+                const typeMap = shapeTypeMap(mockCanvas);
+                console.log('Type map:', typeMap);
+                console.log('Type 6 exists:', !!typeMap[6]);
+                
+                resultDiv.innerHTML = `
+                    <p>✅ Image component imported successfully</p>
+                    <p>✅ Shape type map includes type 6: ${!!typeMap[6]}</p>
+                    <p>Available types: ${Object.keys(typeMap).join(', ')}</p>
+                `;
+            } catch (error) {
+                console.error('Test failed:', error);
+                resultDiv.innerHTML = `❌ Test failed: ${error.message}`;
+            }
+        };
+    </script>
+</body>
+</html> 

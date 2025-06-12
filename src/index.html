@@ -35,6 +35,7 @@
 <body>
 	<ap-menu id="menu"></ap-menu>
 	<ap-menu-shape id="menu-shape"></ap-menu-shape>
+	<ap-history-buttons id="history-buttons"></ap-history-buttons>
 	<div id="tip" style="position: fixed; left: 50%; top: 30%; transform: translate(-50%, -30%); min-width: 290px;">
 		<svg viewBox="0 0 24 24" width="24" height="24">
 			<path fill="none" d="M0 0h24v24H0z" />
@@ -46,11 +47,6 @@
 			<li>drag diagram image here to open</li>
 			<li>to select multiple shapes use long press</li>
 		</ul>
-		<a href="/tip/" style="margin-left: 24px; line-height: 25px;">View tips and tricks</a>
-	</div>
-	<div class="links" style="position: fixed; bottom: 0; right: 0; padding: 15px;">
-		<a href="https://github.com/AlexeyBoiko/DgrmJS" target="_blank">GitHub</a> | <a
-			href="https://linkedin.com/in/alexey-boyko-tech" target="_blank">LinkedIn</a>
 	</div>
 	<svg id="diagram" tabindex="0" style="touch-action: none; background-color: #fff; display:block; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; pointer-events: none;">
 		<style type="text/css">
@@ -141,6 +137,10 @@
 			.cl-blue [data-key="main"] { fill: #1aaee5;} .cl-blue .path { stroke: #1aaee5;}
 			.cl-dblue [data-key="main"] { fill: #1D809F;} .cl-dblue .path { stroke: #1D809F;}
 			.cl-dgray [data-key="main"] { fill: #495057;} .cl-dgray .path { stroke: #495057;}
+			.cl-purple [data-key="main"] { fill: #9b59b6;} .cl-purple .path { stroke: #9b59b6;}
+			.cl-pink [data-key="main"] { fill: #e91e63;} .cl-pink .path { stroke: #e91e63;}
+			.cl-teal [data-key="main"] { fill: transparent;} .cl-teal .path { stroke: transparent;}
+			.cl-yellow [data-key="main"] { fill: #f39c12;} .cl-yellow .path { stroke: #f39c12;}
 
 			.shtxt.cl-red [data-key="main"] { fill: transparent; } .shtxt.cl-red text { fill: #E74C3C; }
 			.shtxt.cl-orange [data-key="main"] { fill: transparent; } .shtxt.cl-orange text { fill: #ff6600; }
@@ -148,6 +148,10 @@
 			.shtxt.cl-blue [data-key="main"] { fill: transparent; } .shtxt.cl-blue text { fill: #1aaee5; }
 			.shtxt.cl-dblue [data-key="main"] { fill: transparent; } .shtxt.cl-dblue text { fill: #1D809F; }
 			.shtxt.cl-dgray [data-key="main"] { fill: transparent; } .shtxt.cl-dgray text { fill: #495057; }
+			.shtxt.cl-purple [data-key="main"] { fill: transparent; } .shtxt.cl-purple text { fill: #9b59b6; }
+			.shtxt.cl-pink [data-key="main"] { fill: transparent; } .shtxt.cl-pink text { fill: #e91e63; }
+			.shtxt.cl-teal [data-key="main"] { fill: transparent; } .shtxt.cl-teal text { fill: transparent; }
+			.shtxt.cl-yellow [data-key="main"] { fill: transparent; } .shtxt.cl-yellow text { fill: #f39c12; }
 
 			.shrhomb.cl-red [data-key="main"] { stroke-width:18px; stroke:#E74C3C; }
 			.shrhomb.cl-orange [data-key="main"] { stroke-width:18px; stroke:#ff6600; }
@@ -155,6 +159,52 @@
 			.shrhomb.cl-blue [data-key="main"] { stroke-width:18px; stroke:#1aaee5; }
 			.shrhomb.cl-dblue [data-key="main"] { stroke-width:18px; stroke:#1D809F; }
 			.shrhomb.cl-dgray [data-key="main"] { stroke-width:18px; stroke:#495057; }
+			.shrhomb.cl-purple [data-key="main"] { stroke-width:18px; stroke:#9b59b6; }
+			.shrhomb.cl-pink [data-key="main"] { stroke-width:18px; stroke:#e91e63; }
+			.shrhomb.cl-teal [data-key="main"] { stroke-width:18px; stroke:transparent; }
+			.shrhomb.cl-yellow [data-key="main"] { stroke-width:18px; stroke:#f39c12; }
+
+			/* container shape */
+			.shcontainer.cl-red [data-key="main"], .shcontainer.cl-red circle { stroke: #E74C3C; fill: transparent !important; }
+			.shcontainer.cl-orange [data-key="main"], .shcontainer.cl-orange circle { stroke: #ff6600; fill: transparent !important; }
+			.shcontainer.cl-green [data-key="main"], .shcontainer.cl-green circle { stroke: #19bc9b; fill: transparent !important; }
+			.shcontainer.cl-blue [data-key="main"], .shcontainer.cl-blue circle { stroke: #1aaee5; fill: transparent !important; }
+			.shcontainer.cl-dblue [data-key="main"], .shcontainer.cl-dblue circle { stroke: #1D809F; fill: transparent !important; }
+			.shcontainer.cl-dgray [data-key="main"], .shcontainer.cl-dgray circle { stroke: #495057; fill: transparent !important; }
+			.shcontainer.cl-purple [data-key="main"], .shcontainer.cl-purple circle { stroke: #9b59b6; fill: transparent !important; }
+			.shcontainer.cl-pink [data-key="main"], .shcontainer.cl-pink circle { stroke: #e91e63; fill: transparent !important; }
+			.shcontainer.cl-teal [data-key="main"], .shcontainer.cl-teal circle { stroke: transparent; fill: transparent !important; }
+			.shcontainer.cl-yellow [data-key="main"], .shcontainer.cl-yellow circle { stroke: #f39c12; fill: transparent !important; }
+
+			/* image shape */
+			.shimage [data-key="main"] { cursor: pointer; }
+			.shimage.highlight [data-key="main"] { stroke-width: 4px; stroke: rgb(108 187 247 / 51%); }
+			.shimage [data-key="image"] { pointer-events: none; }
+			.shimage [data-key="placeholder"] { pointer-events: none; }
+			.shimage [data-key="text"] { pointer-events: none; }
+
+			/* image shape color styles - colors affect border only */
+			.shimage.cl-red [data-key="main"] { stroke: #E74C3C; }
+			.shimage.cl-orange [data-key="main"] { stroke: #ff6600; }
+			.shimage.cl-green [data-key="main"] { stroke: #19bc9b; }
+			.shimage.cl-blue [data-key="main"] { stroke: #1aaee5; }
+			.shimage.cl-dblue [data-key="main"] { stroke: #1D809F; }
+			.shimage.cl-dgray [data-key="main"] { stroke: #495057; }
+			.shimage.cl-purple [data-key="main"] { stroke: #9b59b6; }
+			.shimage.cl-pink [data-key="main"] { stroke: #e91e63; }
+			.shimage.cl-teal [data-key="main"] { stroke: transparent; }
+			.shimage.cl-yellow [data-key="main"] { stroke: #f39c12; }
+
+			/* Selection rectangle styles */
+			.selection-rect {
+				pointer-events: none;
+				animation: selection-pulse 1.5s ease-in-out infinite;
+			}
+
+			@keyframes selection-pulse {
+				0%, 100% { opacity: 0.8; }
+				50% { opacity: 0.4; }
+			}
 		</style>
 		<g id="canvas"></g>
 	</svg>

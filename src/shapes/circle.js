@@ -1,5 +1,6 @@
 import { ceil, child, positionSet, svgTxtFarthestPoint } from '../infrastructure/util.js';
 import { shapeCreate } from './shape-evt-proc.js';
+import { ShapeSmbl } from './shape-smbl.js';
 
 /**
  * @param {CanvasElement} canvas
@@ -20,7 +21,9 @@ export function circle(canvas, circleData) {
 		},
 		// onTextChange
 		txtEl => {
-			const newRadius = textElRadius(txtEl, 48, 24);
+			const minRadius = textElRadius(txtEl, 48, 24);
+			// Only expand the circle if text doesn't fit, don't shrink if user manually resized
+			const newRadius = Math.max(circleData.r || 48, minRadius);
 			if (newRadius !== circleData.r) {
 				circleData.r = newRadius;
 				resize();
@@ -43,6 +46,9 @@ export function circle(canvas, circleData) {
 	}
 
 	if (!!circleData.r && circleData.r !== 48) { resize(); } else { shape.draw(); }
+
+	// Set custom draw method for resize handle
+	shape.el[ShapeSmbl].draw = resize;
 
 	return shape.el;
 }
