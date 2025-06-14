@@ -1,3 +1,4 @@
+// Build timestamp: {{BUILD_TIMESTAMP}}
 import { moveEvtMobileFix } from './infrastructure/move-evt-mobile-fix.js';
 import { CanvasSmbl } from './infrastructure/canvas-smbl.js';
 import { moveScaleApplay } from './infrastructure/move-scale-applay.js';

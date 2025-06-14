@@ -1,5 +1,6 @@
 import { ceil, child, classAdd, positionSet, svgTxtFarthestPoint } from '../infrastructure/util.js';
 import { shapeCreate } from './shape-evt-proc.js';
+import { ShapeSmbl } from './shape-smbl.js';
 
 /**
  * @param {CanvasElement} canvas
@@ -48,6 +49,9 @@ export function rhomb(canvas, rhombData) {
 	}
 
 	if (!!rhombData.w && rhombData.w !== 96) { resize(); } else { shape.draw(); }
+
+	// Set custom draw method for resize handle
+	shape.el[ShapeSmbl].draw = resize;
 
 	return shape.el;
 }

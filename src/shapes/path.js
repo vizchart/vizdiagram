@@ -11,6 +11,22 @@ import { modalCreate } from './modal-create.js';
 import { canvasSelectionClearSet } from '../diagram/canvas-clear.js';
 import { listenCopy } from '../diagram/group-select-applay.js';
 
+// Global state to track shift key
+let isShiftPressed = false;
+
+// Listen for shift key globally
+document.addEventListener('keydown', (evt) => {
+	if (evt.key === 'Shift') {
+		isShiftPressed = true;
+	}
+});
+
+document.addEventListener('keyup', (evt) => {
+	if (evt.key === 'Shift') {
+		isShiftPressed = false;
+	}
+});
+
 /**
  * @param {CanvasElement} canvas
  * @param {PathData} pathData
@@ -43,8 +59,9 @@ export function path(canvas, pathData) {
 			if (!pathData.s.shape) { pathData.s.data.dir = dirReverse(endDir); }
 		}
 
-		// path
-		const dAttr = pathCalc(pathData);
+		// path - only use straight lines if this path is being actively moved/selected and shift is pressed
+		const useShiftMode = isShiftPressed && (movedEnd !== null || state === 1);
+		const dAttr = pathCalc(pathData, useShiftMode);
 		paths.forEach(pp => pp.setAttribute('d', dAttr));
 
 		// ends
@@ -101,6 +118,20 @@ export function path(canvas, pathData) {
 
 		canvasSelectionClearSet(canvas, unSelect);
 		listenCopyDispose = listenCopy(() => [svgGrp]);
+
+		// Add shift key listeners for selected path
+		const selectedShiftHandler = (e) => {
+			if (e.key === 'Shift') draw();
+		};
+		document.addEventListener('keydown', selectedShiftHandler);
+		document.addEventListener('keyup', selectedShiftHandler);
+		
+		// Store cleanup for selected state
+		selectedShiftCleanup = () => {
+			document.removeEventListener('keydown', selectedShiftHandler);
+			document.removeEventListener('keyup', selectedShiftHandler);
+			selectedShiftCleanup = null;
+		};
 	};
 
 	/** @type { {():void} } */
@@ -119,12 +150,23 @@ export function path(canvas, pathData) {
 			svgGrp.style.pointerEvents = 'unset';
 		}
 
+		// Clean up selected shift key listeners
+		if (selectedShiftCleanup) {
+			selectedShiftCleanup();
+		}
+
 		canvasSelectionClearSet(canvas, null);
 		if (listenCopyDispose) { listenCopyDispose(); listenCopyDispose = null;	}
 	};
 
 	/** @type {'s'|'e'} */
 	let movedEnd;
+	
+	/** @type {()=>void} */
+	let shiftCleanup = null;
+	
+	/** @type {()=>void} */
+	let selectedShiftCleanup = null;
 
 	const reset = moveEvtProc(
 		canvas.ownerSVGElement,
@@ -172,6 +214,20 @@ export function path(canvas, pathData) {
 			// hover emulation - start
 			svgGrp.style.pointerEvents = 'none';
 			hoverEmulateDispose = hoverEmulate(svgGrp.parentElement);
+
+			// Add shift key listeners for this path during manipulation
+			const shiftHandler = (e) => {
+				if (e.key === 'Shift') draw();
+			};
+			document.addEventListener('keydown', shiftHandler);
+			document.addEventListener('keyup', shiftHandler);
+			
+			// Store cleanup for later
+			shiftCleanup = () => {
+				document.removeEventListener('keydown', shiftHandler);
+				document.removeEventListener('keyup', shiftHandler);
+				shiftCleanup = null;
+			};
 		},
 		// onMove
 		/** @param {PointerEventFixMovement} evt */
@@ -210,6 +266,11 @@ export function path(canvas, pathData) {
 					placeToCell(pathData[movedEnd].data.position, canvas[CanvasSmbl].data.cell);
 				}
 				draw();
+			}
+
+			// Clean up shift key listeners
+			if (shiftCleanup) {
+				shiftCleanup();
 			}
 
 			// hover emulation - end
@@ -317,7 +378,12 @@ function dirByAngle(s, e) {
 }
 
 /** @param {PathData} data */
-function pathCalc(data) {
+function pathCalc(data, useShiftMode = false) {
+	// If shift mode is enabled, create a straight line
+	if (useShiftMode) {
+		return `M ${data.s.data.position.x} ${data.s.data.position.y} L ${data.e.data.position.x} ${data.e.data.position.y}`;
+	}
+
 	let coef = Math.hypot(
 		data.s.data.position.x - data.e.data.position.x,
 		data.s.data.position.y - data.e.data.position.y) * 0.5;

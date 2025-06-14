@@ -259,7 +259,7 @@ function shapeEvtProc(canvas, svgGrp, shapeData, connectorsInnerPosition, onEdit
 
 			// Create and show resize handle
 			if (!resizeHandle) {
-				resizeHandle = createResizeHandle(svgGrp, shapeData, drawPosition);
+				resizeHandle = createResizeHandle(svgGrp, shapeData, drawPosition, canvas);
 			}
 			resizeHandle.show();
 
@@ -306,8 +306,9 @@ function shapeEvtProc(canvas, svgGrp, shapeData, connectorsInnerPosition, onEdit
  * @param {ShapeElement} shapeEl - The shape element
  * @param {ShapeData} shapeData - The shape data
  * @param {()=>void} drawPosition - Function to redraw the shape
+ * @param {CanvasElement} canvas - The canvas element
  */
-function createResizeHandle(shapeEl, shapeData, drawPosition) {
+function createResizeHandle(shapeEl, shapeData, drawPosition, canvas) {
 	/** @type {SVGCircleElement | null} */
 	let resizeHandle = null;
 	let isResizing = false;
@@ -395,9 +396,8 @@ function createResizeHandle(shapeEl, shapeData, drawPosition) {
 		const deltaX = evt.clientX - startPosition.x;
 		const deltaY = evt.clientY - startPosition.y;
 		
-		// Get canvas scale from the canvas element that contains this shape
-		const canvasElement = shapeEl.parentElement; // This should be the canvas element
-		const canvasScale = canvasElement?.[CanvasSmbl]?.data?.scale || 1;
+		// Get canvas scale from the passed canvas parameter
+		const canvasScale = canvas[CanvasSmbl]?.data?.scale || 1;
 		
 		const scaledDeltaX = deltaX / canvasScale;
 		const scaledDeltaY = deltaY / canvasScale;

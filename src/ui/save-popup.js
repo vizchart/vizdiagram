@@ -167,23 +167,23 @@ export function showSaveSuccessDialog({ title, action, nodeId, domain }) {
         modal.innerHTML = `
             <div style="text-align: center; margin-bottom: 25px;">
                 ${successIcon}
-                <h3 style="margin: 15px 0 10px 0; color: #28a745; font-size: 20px; font-weight: 600;">Save Successful!</h3>
+                <h3 style="margin: 15px 0 10px 0; color: #28a745; font-size: 20px; font-weight: 600;">Save Successfully!</h3>
                 <p style="margin: 0; color: #333; font-size: 16px; font-weight: 500;">${actionText}: ${title}</p>
             </div>
             
             <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
                 <div style="margin-bottom: 15px;">
-                    <strong style="color: #495057; font-size: 14px;">Address:</strong>
+                    <strong style="color: #495057; font-size: 14px;">View address:</strong>
                     <div style="margin-top: 5px;">
                         <a href="https://${domain}/node/${nodeId}" target="_blank" 
                            style="color: #007bff; text-decoration: none; font-size: 14px; word-break: break-all;">
-                            https://${domain}/node/${nodeId}
+                            ${title}
                         </a>
                     </div>
                 </div>
                 
                 <div>
-                    <strong style="color: #495057; font-size: 14px;">Dashboard:</strong>
+                    <strong style="color: #495057; font-size: 14px;">Manage in your dashboard:</strong>
                     <div style="margin-top: 5px;">
                         <a href="https://${domain}/dashboard" target="_blank" 
                            style="color: #007bff; text-decoration: none; font-size: 14px;">
