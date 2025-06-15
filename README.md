@@ -6,7 +6,7 @@ This Diagram Builder is forked from [DgrmJS](https://github.com/AlexeyBoiko/Dgrm
 
 ### New Components
 
-#### Image
+#### Image Upload
 - Images under 100KB are embedded into JSON (base64 encoded)
 - Images over 100KB require upload to a cloud server (login required)
 - Supports various image formats (e.g., PNG, JPG, GIF)
@@ -31,8 +31,16 @@ This Diagram Builder is forked from [DgrmJS](https://github.com/AlexeyBoiko/Dgrm
 
 ### Delete Keyboard Support
 - Delete shapes by press delete key 
+- Shift key pressed makes the line will be straight
 
-### Initialization Options
+### Customizable Styles
+- Apply custom styles to diagram elements
+- Customize colors, line styles, and fonts
+
+
+### URL Parameters
+
+#### Initialization Options
 1. JSON: Load diagram from a JSON file
    `type=json&http://your-json-file.json`
 2. Image: Load an image file as the diagram background
@@ -42,13 +50,7 @@ This Diagram Builder is forked from [DgrmJS](https://github.com/AlexeyBoiko/Dgrm
 4. New init option for scale
    `type=drupal&uuid=xxx&scale=0.5`
 
-### Customizable Styles
-- Apply custom styles to diagram elements
-- Customize colors, line styles, and fonts
-
-
-### URL Parameters
-DgrmJS Supports initialized via different query params：
+#### Examples
 
 ```bash
 # scale

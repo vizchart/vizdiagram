@@ -14,7 +14,7 @@ export function generateDiagramCover(canvas) {
 				generateCoverFromHTMLCanvas(canvas).then(resolve).catch(reject);
 				return;
 			}
-			
+
 			// Use the same logic as dgrmPngCreate to capture the actual diagram content
 			const rectToShow = canvas.getBoundingClientRect();
 			
@@ -33,16 +33,20 @@ export function generateDiagramCover(canvas) {
 			const nonSvgElems = svgVirtual.getElementsByTagName('foreignObject');
 			while (nonSvgElems[0]) { nonSvgElems[0].parentNode.removeChild(nonSvgElems[0]); }
 
+			// Remove connector points and corner circles that appear as black dots
+			svgVirtual.querySelectorAll('[data-connect]').forEach(el => el.remove());
+			svgVirtual.querySelectorAll('[data-key^="corner-"]').forEach(el => el.remove());
+
 			const canvasData = canvas[CanvasSmbl].data;
 
 			// Position diagram to left corner (same as dgrmPngCreate)
 			const canvasElVirtual = /** @type{SVGGraphicsElement} */(svgVirtual.children[1]);
 			const divis = 1 / canvasData.scale;
-			canvasElVirtual.style.transform = `matrix(1, 0, 0, 1, ${divis * (canvasData.position.x + 15 * canvasData.scale - rectToShow.x)}, ${divis * (canvasData.position.y + 15 * canvasData.scale - rectToShow.y)})`;
+			canvasElVirtual.style.transform = `matrix(1, 0, 0, 1, ${divis * (canvasData.position.x + 15 * canvasData.scale - rectToShow.x)}, ${divis * (canvasData.position.y + 30 * canvasData.scale - rectToShow.y)})`;
 
 			// Generate PNG with the same parameters as dgrmPngCreate
 			svgToPng(svgVirtual,
-				{ x: 0, y: 0, height: rectToShow.height / canvasData.scale + 30, width: rectToShow.width / canvasData.scale + 30 },
+				{ x: 0, y: 0, height: rectToShow.height / canvasData.scale + 50, width: rectToShow.width / canvasData.scale + 30 },
 				// scale
 				3,
 				// callBack

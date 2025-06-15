@@ -528,6 +528,93 @@ class DrupalAPI {
 	}
 
 	/**
+	 * 删除媒体实体和相关文件
+	 * @param {string} mediaId - 媒体实体的ID
+	 */
+	async deleteMediaEntity(mediaId) {
+		try {
+			console.log(`🗑️ Deleting media entity: ${mediaId}`);
+
+			if (!this.isAuthenticated) {
+				const loginStatus = await this.checkLoginStatus();
+				if (!loginStatus.isLoggedIn) {
+					throw new Error('User not authenticated');
+				}
+			}
+
+			const csrfToken = await this.getCurrentCSRFToken();
+			if (!csrfToken) {
+				throw new Error('Failed to get CSRF token');
+			}
+
+			// 删除媒体实体
+			const deleteResponse = await fetch(`/jsonapi/media/image/${mediaId}`, {
+				method: 'DELETE',
+				credentials: 'include',
+				headers: {
+					Accept: 'application/vnd.api+json',
+					'X-CSRF-Token': csrfToken
+				}
+			});
+
+			if (!deleteResponse.ok) {
+				const errorText = await deleteResponse.text();
+				throw new Error(`Media deletion failed: ${deleteResponse.status} - ${errorText}`);
+			}
+
+			console.log('✅ Media entity deleted successfully');
+			return {
+				success: true
+			};
+
+		} catch (error) {
+			console.error('❌ Media deletion failed:', error);
+			return {
+				success: false,
+				error: error.message
+			};
+		}
+	}
+
+	/**
+	 * 获取节点的当前cover media ID
+	 * @param {string} nodeUuid - 节点的UUID
+	 */
+	async getCurrentCoverMediaId(nodeUuid) {
+		try {
+			console.log(`🔍 Getting current cover media for node: ${nodeUuid}`);
+
+			const nodeResponse = await fetch(`/jsonapi/node/aigc/${nodeUuid}?fields[node--aigc]=cover&include=cover`, {
+				method: 'GET',
+				credentials: 'include',
+				headers: {
+					Accept: 'application/vnd.api+json',
+					'Content-Type': 'application/vnd.api+json'
+				}
+			});
+
+			if (!nodeResponse.ok) {
+				throw new Error(`Failed to get node cover: ${nodeResponse.status}`);
+			}
+
+			const nodeData = await nodeResponse.json();
+			const coverMediaId = nodeData.data.relationships?.cover?.data?.id;
+
+			if (coverMediaId) {
+				console.log(`📷 Found current cover media ID: ${coverMediaId}`);
+				return coverMediaId;
+			} else {
+				console.log('📷 No current cover media found');
+				return null;
+			}
+
+		} catch (error) {
+			console.error('❌ Failed to get current cover media:', error);
+			return null;
+		}
+	}
+
+	/**
 	 * 保存图表到云端（完整流程）
 	 */
 	async saveDiagramToCloud(title, imageBlob, canvas = null) {
@@ -551,22 +638,29 @@ class DrupalAPI {
 				}
 			}
 
-			// 3. 上传封面文件
+			// 3. 如果是更新操作，先获取当前的cover media ID
+			let oldCoverMediaId = null;
+			let isNewNode = this.currentDiagram.isNew || !this.currentDiagram.nodeId;
+			
+			if (!isNewNode && this.currentDiagram.nodeId) {
+				oldCoverMediaId = await this.getCurrentCoverMediaId(this.currentDiagram.nodeId);
+			}
+
+			// 4. 上传封面文件
 			const filename = `diagram-${Date.now()}.png`;
 			const uploadResult = await this.uploadFile(imageBlob, filename);
 			if (!uploadResult.success) {
 				throw new Error(`File upload failed: ${uploadResult.error}`);
 			}
 
-			// 4. 创建媒体实体
+			// 5. 创建媒体实体
 			const mediaResult = await this.createMediaEntity(uploadResult.fileData, filename);
 			if (!mediaResult.success) {
 				throw new Error(`Media creation failed: ${mediaResult.error}`);
 			}
 
-			// 5. 决定是创建新节点还是更新现有节点
+			// 6. 决定是创建新节点还是更新现有节点
 			let nodeResult;
-			let isNewNode = this.currentDiagram.isNew || !this.currentDiagram.nodeId;
 			
 			console.log(`💾 Save decision: isNew=${this.currentDiagram.isNew}, nodeId=${this.currentDiagram.nodeId}, action=${isNewNode ? 'CREATE' : 'UPDATE'}`);
 			
@@ -594,7 +688,18 @@ class DrupalAPI {
 				throw new Error(`Node operation failed: ${nodeResult.error}`);
 			}
 
-			// 6. 清理未使用的ref_images（仅对更新的节点执行）
+			// 7. 删除旧的cover media（仅对更新操作执行）
+			if (!isNewNode && oldCoverMediaId && oldCoverMediaId !== mediaResult.mediaData.id) {
+				try {
+					console.log('🗑️ Cleaning up old cover media...');
+					await this.deleteMediaEntity(oldCoverMediaId);
+				} catch (cleanupError) {
+					console.warn('⚠️ Failed to cleanup old cover media:', cleanupError);
+					// 不让清理失败影响整个保存流程
+				}
+			}
+
+			// 8. 清理未使用的ref_images（仅对更新的节点执行）
 			if (!isNewNode && diagramData && this.currentDiagram.nodeId) {
 				try {
 					console.log('🧹 Cleaning up unused ref_images...');
