@@ -19,7 +19,11 @@ jobs:
       - name: Remove private files
         run: |
           # Use -f to ignore errors if files don't exist.
+<<<<<<< HEAD
           rm -rf doc/
+=======
+          rm -rf docs/
+>>>>>>> a04c61cd1b444da2eb35762ddbea0c9248e3b095
           rm -f .env
 
       - name: Push to public repo using SSH
