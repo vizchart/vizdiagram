@@ -18,13 +18,10 @@ jobs:
 
       - name: Remove private files
         run: |
-          # Use -f to ignore errors if files don't exist.
-<<<<<<< HEAD
-          rm -rf doc/
-=======
-          rm -rf docs/
->>>>>>> a04c61cd1b444da2eb35762ddbea0c9248e3b095
-          rm -f .env
+          # Use 'git rm' to remove files/folders. This command removes them
+          # from the filesystem AND stages the deletion for the commit in one step.
+          # The --ignore-unmatch flag prevents errors if the files don't exist.
+          git rm -rf --ignore-unmatch doc/ .env
 
       - name: Push to public repo using SSH
         env:
