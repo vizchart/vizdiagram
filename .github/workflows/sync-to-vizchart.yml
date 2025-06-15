@@ -21,7 +21,7 @@ jobs:
           # Use 'git rm' to remove files/folders. This command removes them
           # from the filesystem AND stages the deletion for the commit in one step.
           # The --ignore-unmatch flag prevents errors if the files don't exist.
-          git rm -rf --ignore-unmatch doc/ .env
+          git rm -rf --ignore-unmatch doc/ .env .github/workflows/sync-to-vizchart.yml
 
       - name: Push to public repo using SSH
         env:
