@@ -3,7 +3,7 @@ name: Sync to Public Repository
 on:
   push:
     branches:
-      - main  # 如果你使用的是其他分支名，请改成对应的
+      - main
 
 jobs:
   sync:
@@ -12,15 +12,47 @@ jobs:
     steps:
       - name: Checkout private repo
         uses: actions/checkout@v4
+        with:
+          # Fetches all history for all branches and tags.
+          fetch-depth: 0
 
       - name: Remove private files
         run: |
+          # Use -f to ignore errors if files don't exist.
           rm -rf docs/
           rm -f .env
 
-      - name: Push to public repo
+      - name: Push to public repo using SSH
+        env:
+          # This secret must be the PRIVATE part of the SSH key you created.
+          # It must be stored in the private repository's secrets.
+          SSH_PRIVATE_KEY: ${{ secrets.SYNC_SSH_PRIVATE_KEY }}
         run: |
+          # Verify the secret is loaded before proceeding.
+          if [ -z "${SSH_PRIVATE_KEY}" ]; then
+            echo "❌ ERROR: The SYNC_SSH_PRIVATE_KEY secret is not set."
+            echo "Please add it to the private repository's secrets."
+            exit 1
+          fi
+
+          # Set up the SSH environment for authentication.
+          mkdir -p ~/.ssh
+          echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+          # Configure git with a generic user identity.
           git config --global user.name "GitHub Action"
-          git config --global user.email "actions@github.com"
-          git remote add public https://${{ secrets.PUBLIC_DIAGRAM_REPO_TOKEN }}@github.com/vizchart/vizdiagram.git
+          git config --global user.email "action@github.com"
+          
+          # Commit the changes (e.g., the removal of private files).
+          # The '|| true' part prevents the workflow from failing if there are no changes to commit.
+          git add .
+          git commit -m "chore: remove private files for public sync" || true
+
+          # Add the public repository as a remote using the SSH URL.
+          git remote add public git@github.com:vizchart/vizdiagram.git
+          
+          # Force-push the current state to the public repository's main branch.
           git push -f public HEAD:main
+
