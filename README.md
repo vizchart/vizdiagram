@@ -37,7 +37,6 @@ This Diagram Builder is forked from [DgrmJS](https://github.com/AlexeyBoiko/Dgrm
 - Apply custom styles to diagram elements
 - Customize colors, line styles, and fonts
 
-
 ### URL Parameters
 
 #### Initialization Options
@@ -68,11 +67,10 @@ http://localhost:3001/index.dev.html?type=drupal&uuid=your-uuid&scale=2.0
 
 PS: scale, ` 0.1 - 4.0 (10% - 400%)
 
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guide](link-to-contributing-guide) for more details.
+## Online demo
+Please check this url [AI Flowchart Maker](https://vizchart.com) to use the apps for free, but for AI features, which is limited per day. 
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](link-to-license) file for details.
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE.md) file for details.
 
