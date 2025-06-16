@@ -56,4 +56,6 @@ jobs:
           
           # Force-push the current state to the public repository's main branch.
           git push -f public HEAD:main
+          # Push tags to public repository and then it will trigger the release workflow to build the release package
+          git push public --tags
 
