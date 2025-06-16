@@ -24,10 +24,28 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Zip build folder
+      - name: List current folder structure
+        run: |
+          echo "Root directory:"
+          ls -la
+          echo "Possible build folders:"
+          ls -la build || true
+          ls -la dist || true
+          ls -la out || true
+
+      - name: Zip build output
         run: |
           mkdir -p release
-          zip -r release/build.zip build/
+          if [ -d "build" ]; then
+            zip -r release/build.zip build/
+          elif [ -d "dist" ]; then
+            zip -r release/build.zip dist/
+          elif [ -d "out" ]; then
+            zip -r release/build.zip out/
+          else
+            echo "❌ No known build folder found (build/, dist/, or out/)."
+            exit 1
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
