@@ -333,6 +333,11 @@ function createResizeHandle(shapeEl, shapeData, drawPosition, canvas) {
 				right: (w || 96) * 0.4,
 				bottom: (w || 96) * 0.4
 			};
+		} else if (shapeData.type === 5) { // Container
+			return {
+				right: (w || 120) / 2 - 5,
+				bottom: (h || 80) / 2 - 5
+			};
 		} else if (shapeData.type === 6) { // Image
 			return {
 				right: (w || 120) / 2 - 5,
@@ -410,6 +415,11 @@ function createResizeHandle(shapeEl, shapeData, drawPosition, canvas) {
 			const delta = Math.max(scaledDeltaX, scaledDeltaY);
 			const newWidth = Math.max(48, startSize.w + delta);
 			shapeData.w = newWidth;
+		} else if (shapeData.type === 5) { // Container - free resize
+			const newWidth = Math.max(48, startSize.w + scaledDeltaX);
+			const newHeight = Math.max(32, startSize.h + scaledDeltaY);
+			shapeData.w = newWidth;
+			shapeData.h = newHeight;
 		} else { // Rect and Text
 			const newWidth = Math.max(48, startSize.w + scaledDeltaX);
 			const newHeight = Math.max(24, startSize.h + scaledDeltaY);

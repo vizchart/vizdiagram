@@ -16,6 +16,7 @@ import './ui/history-buttons.js';
 import { dgrmPngChunkGet } from './diagram/dgrm-png.js';
 import drupalAPI from './infrastructure/drupal-api.js';
 import { keyboardDeleteApply } from './infrastructure/keyboard-delete.js';
+import { keyboardMoveApply } from './infrastructure/keyboard-move.js';
 
 // Make drupalAPI globally available
 /** @type {any} */(window).drupalAPI = drupalAPI;
@@ -62,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	groupSelectApplay(canvas); // groupSelectApplay must go before moveScaleApplay
 	moveScaleApplay(canvas);
 	keyboardDeleteApply(canvas); // Enable keyboard delete functionality
+	keyboardMoveApply(canvas); // Enable keyboard move functionality
 
 	// Initialize history manager
 	const historyManager = new HistoryManager(canvas);

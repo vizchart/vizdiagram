@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>容器组件缩放测试</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .test-info {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .test-steps {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .test-steps ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .test-steps li {
+            margin: 8px 0;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-info">
+        <h1>🧪 容器组件自由缩放测试</h1>
+        <p>此页面用于测试容器组件（Container/Group）的自由缩放功能是否正常工作。</p>
+        
+        <div class="test-steps">
+            <h3>测试步骤：</h3>
+            <ol>
+                <li>在下方的画布中，点击左侧菜单的 <strong>Container</strong> 按钮创建一个容器组件</li>
+                <li>点击选择刚创建的容器组件（会显示蓝色边框和绿色缩放手柄）</li>
+                <li>拖拽右下角的绿色圆形缩放手柄</li>
+                <li><strong>预期结果</strong>：应该可以自由调整长宽比例，而不是固定正方形缩放</li>
+                <li><strong>测试键盘移动</strong>：选中容器后，使用方向键 ↑↓←→ 移动</li>
+            </ol>
+        </div>
+    </div>
+    
+    <iframe src="http://localhost:3000" title="DgrmJS 测试环境"></iframe>
+    
+    <div class="test-info">
+        <h3>📝 测试记录</h3>
+        <p><strong>修改内容：</strong></p>
+        <ul>
+            <li>在 <code>shape-evt-proc.js</code> 中为容器组件（type 5）添加了独立的缩放逻辑</li>
+            <li>容器组件现在支持自由缩放，不再强制保持正方形比例</li>
+            <li>最小尺寸限制：宽度48px，高度32px</li>
+        </ul>
+        
+        <p><strong>技术细节：</strong></p>
+        <ul>
+            <li>容器组件类型：<code>type: 5</code></li>
+            <li>缩放逻辑：独立处理 X 和 Y 方向的缩放</li>
+            <li>边界计算：基于容器的实际宽高计算缩放手柄位置</li>
+        </ul>
+    </div>
+</body>
+</html> 
