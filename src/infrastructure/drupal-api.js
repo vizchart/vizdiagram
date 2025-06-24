@@ -282,8 +282,7 @@ class DrupalAPI {
 				data: {
 					type: 'media--image',
 					attributes: {
-						name: filename,
-						status: true
+						name: filename
 					},
 					relationships: {
 						field_media_image: {
@@ -376,7 +375,6 @@ class DrupalAPI {
 					type: 'node--aigc',
 					attributes: {
 						title: title,
-						status: true,
 						content_data: contentData,
 						content_type: ['diagram'],
 						prompt: promptValue
@@ -466,7 +464,6 @@ class DrupalAPI {
 					id: nodeUuid,  // 使用UUID
 					attributes: {
 						title: title,
-						status: true,
 						content_data: contentData
 						// 更新时不修改prompt字段
 					},

@@ -155,8 +155,7 @@ Cookie: [session_cookie]
     "data": {
         "type": "media--image",
         "attributes": {
-            "name": "媒体名称",
-            "status": true
+            "name": "媒体名称"
         },
         "relationships": {
             "field_media_image": {
@@ -216,7 +215,6 @@ Cookie: [session_cookie]
         "type": "node--aigc",
         "attributes": {
             "title": "图表标题",
-            "status": true,
             "content_data": "{\"v\":\"1.1\",\"s\":[...]}",
             "content_type": ["diagram"],
             "prompt": "DgrmJS diagram: 图表标题"
@@ -241,7 +239,6 @@ Cookie: [session_cookie]
         "id": "node_uuid",
         "attributes": {
             "title": "图表标题",
-            "status": true,
             "content_data": "{\"v\":\"1.1\",\"s\":[...]}",
             "content_type": ["diagram"],
             "prompt": "DgrmJS diagram: 图表标题",
@@ -274,7 +271,6 @@ Cookie: [session_cookie]
         "id": "node_uuid",
         "attributes": {
             "title": "更新的标题",
-            "status": true,
             "content_data": "{\"v\":\"1.1\",\"s\":[...]}",
             "prompt": "DgrmJS diagram: 更新的标题 (updated)"
         },

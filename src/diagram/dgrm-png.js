@@ -32,7 +32,20 @@ export function dgrmPngCreate(canvas, dgrmChunkVal, callBack) {
 		// scale
 		3,
 		// callBack
-		async blob => callBack(await pngChunkSet(blob, 'dgRm', new TextEncoder().encode(dgrmChunkVal)))
+		async blob => {
+			if (!blob) {
+				console.error('❌ SVG to PNG conversion failed');
+				callBack(null);
+				return;
+			}
+			try {
+				const result = await pngChunkSet(blob, 'dgRm', new TextEncoder().encode(dgrmChunkVal));
+				callBack(result);
+			} catch (error) {
+				console.error('❌ Failed to set PNG chunk:', error);
+				callBack(null);
+			}
+		}
 	);
 }
 
