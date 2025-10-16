@@ -86,7 +86,7 @@ export class Menu extends HTMLElement {
 				const loginStatus = await drupalAPI.checkLoginStatus()
 				
 				if (!loginStatus.isLoggedIn) {
-					await showInfoDialogWithLogin('需要登录', '🔐 请先登录才能保存图表到云端\n\n请点击<a href="/user/login">此处登录</a>，然后回到这里保存画布', 'warning')
+					await showInfoDialogWithLogin('Login Required', `Please login to save diagrams to cloud\n\n<a href="${drupalAPI.getLoginURL()}">Click here to login</a>, then return to save`, 'warning')
 					return
 				}
 				
@@ -158,7 +158,7 @@ export class Menu extends HTMLElement {
 				
 			} catch (error) {
 				console.error('❌ Save to cloud failed:', error)
-				await showSaveErrorDialog(`Failed to save diagram to cloud:\n\n${error.message}\n\nPlease check your login status and try again.`)
+				await showSaveErrorDialog('Failed to save diagram to cloud.\n\nPlease check your login status and try again.')
 			} finally {
 				const button = shadow.getElementById('save')
 				if (button) {

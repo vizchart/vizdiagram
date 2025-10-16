@@ -26,6 +26,8 @@ class DrupalAPI {
 		console.log(`🌐 Current domain: ${window.location.hostname}`);
 	}
 
+
+
 	/**
 	 * 检查用户登录状态
 	 */
@@ -989,7 +991,7 @@ class DrupalAPI {
 			if (!this.isAuthenticated) {
 				const loginStatus = await this.checkLoginStatus();
 				if (!loginStatus.isLoggedIn) {
-					throw new Error('请先登录才能上传图片。您可以在 https://graphmaker.intra.vizcms.cn/user/login 登录');
+					throw new Error('Please login to upload images. Login at /user/login');
 				}
 			}
 			

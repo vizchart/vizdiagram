@@ -182,7 +182,7 @@ export function image(canvas, imageData) {
 					console.log('🔍 Checking login status before image upload...');
 					const loginStatus = await drupalAPI.checkLoginStatus();
 					if (!loginStatus.isLoggedIn) {
-						await showInfoDialogWithLogin('需要登录', '🔐 图片大于100KB需要上传到服务器\n\n请点击<a href="/user/login">此处登录</a>，然后回到这里保存图片\n\n💡 提示：如果使用小于100KB的图片，可以直接嵌入无需登录', 'warning');
+						await showInfoDialogWithLogin('Login Required', '🔐 Images >100KB need server upload\n\n<a href="/user/login">Click here to login</a>, then return to save image\n\n💡 Tip: Images <100KB can be embedded without login', 'warning');
 						return;
 					}
 
